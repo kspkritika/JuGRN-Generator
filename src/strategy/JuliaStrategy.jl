@@ -83,9 +83,9 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
     species_type = species_object.species_type
 
     if (species_type == :gene)
-      buffer *= "\t\t2.0\t;\t#$(index)\t$(species_symbol)\n"
+      buffer *= "\t\t2.0\t;\t# $(index)\t$(species_symbol)\n"
     elseif (species_type == :mrna || species_type == :protein)
-      buffer *= "\t\t0.0\t;\t#$(index)\t$(species_symbol)\n"
+      buffer *= "\t\t0.0\t;\t# $(index)\t$(species_symbol)\n"
     end
   end
 
@@ -102,7 +102,7 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
     species_type = species_object.species_type
 
     if (species_type == :gene)
-      buffer *= "\t\t15000\t;\t#$(index)\t$(species_symbol)\n"
+      buffer *= "\t\t15000\t;\t# $(index)\t$(species_symbol)\n"
     end
   end
   buffer *= "\t]\n"
@@ -119,7 +119,7 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
     species_type = species_object.species_type
 
     if (species_type == :mrna)
-      buffer *= "\t\tgene_coding_length_array[$(counter)]\t;\t#$(index)\t$(counter)\t$(species_symbol)\n"
+      buffer *= "\t\tgene_coding_length_array[$(counter)]\t;\t# $(index)\t$(counter)\t$(species_symbol)\n"
       counter = counter + 1
     end
   end
@@ -139,12 +139,14 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
     species_type = species_object.species_type
 
     if (species_type == :protein)
-      buffer *= "\t\tround((0.33)*mRNA_coding_length_array[$(counter)])\t;\t#$(index)\t$(counter)\t$(species_symbol)\n"
+      buffer *= "\t\tround((0.33)*mRNA_coding_length_array[$(counter)])\t;\t# $(index)\t$(counter)\t$(species_symbol)\n"
       counter = counter + 1
     end
   end
 
   buffer *= "\t]\n"
+  buffer *= "\n"
+  buffer *= @include_function("txtl_constants")
   buffer *= "\n"
 
   buffer *= "\t# =============================== DO NOT EDIT BELOW THIS LINE ============================== #\n"
@@ -153,6 +155,17 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
   buffer *= "\tdata_dictionary[\"gene_coding_length_array\"] = gene_coding_length_array\n"
   buffer *= "\tdata_dictionary[\"mRNA_coding_length_array\"] = mRNA_coding_length_array\n"
   buffer *= "\tdata_dictionary[\"protein_coding_length_array\"] = protein_coding_length_array\n"
+  buffer *= "\tdata_dictionary[\"rnapII_concentration\"] = rnapII_concentration  # \muM \n"
+  buffer *= "\tdata_dictionary[\"ribosome_concentration\"] = ribosome_concentration # \muM \n"
+  buffer *= "\tdata_dictionary[\"degradation_constant_mRNA\"] = degradation_constant_mRNA  # hr^-1 \n"
+  buffer *= "\tdata_dictionary[\"degradation_constant_protein\"] = degradation_constant_protein  # hr^-1 \n"
+  buffer *= "\tdata_dictionary[\"kcat_transcription\"] = kcat_transcription  # hr^-1 \n"
+  buffer *= "\tdata_dictionary[\"kcat_translation\"] = kcat_translation  # hr^-1 \n"
+  buffer *= "\tdata_dictionary[\"maximum_specific_growth_rate\"] = maximum_specific_growth_rate  # hr^-1 \n"
+  buffer *= "\tdata_dictionary[\"death_rate_constant\"] = death_rate_constant \n"
+  buffer *= "\tdata_dictionary[\"avg_gene_concentration\"] = avg_gene_concentration \n"
+  buffer *= "\tdata_dictionary[\"saturation_constant_transcription\"] = saturation_transcription \n"
+  buffer *= "\tdata_dictionary[\"saturation_constant_translation\"] = saturation_translation \n"
   buffer *= "\t# =============================== DO NOT EDIT ABOVE THIS LINE ============================== #\n"
   buffer *= "\treturn data_dictionary\n"
   buffer *= "end\n"
