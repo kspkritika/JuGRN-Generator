@@ -23,6 +23,7 @@
 # ----------------------------------------------------------------------------------- #
 function calculate_transcription_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 
+	# Alias the species - 
 end
 
 function calculate_background_transcription_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
@@ -37,11 +38,38 @@ end
 
 function calculate_mRNA_degradation_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 
-end
+	# Alias the species - 
+	mRNA_gene_1 = x[3]
+	mRNA_gene_2 = x[4]
 
+	# Initialize the degrdation array - 
+	degradation_rate_array = zeros(2)
+	mRNA_degrdation_constant = data_dictionary["degradation_constant_mRNA"]
+
+	# Calculate the degradation_rate_array - 
+	degradation_rate_array[1] = (mRNA_degrdation_constant)*mRNA_gene_1
+	degradation_rate_array[2] = (mRNA_degrdation_constant)*mRNA_gene_2
+
+	# return the degrdation rate array - 
+	return degradation_rate_array
+end
 
 function calculate_protein_degradation_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 
+	# Alias the species - 
+	protein_gene_1 = x[5]
+	protein_gene_2 = x[6]
+
+	# Initialize the degrdation array - 
+	degradation_rate_array = zeros(2)
+	protein_degrdation_constant = data_dictionary["degradation_constant_protein"]
+
+	# Calculate the degradation_rate_array - 
+	degradation_rate_array[1] = (protein_degrdation_constant)*protein_gene_1
+	degradation_rate_array[2] = (protein_degrdation_constant)*protein_gene_2
+
+	# return the degrdation rate array - 
+	return degradation_rate_array
 end
 
 

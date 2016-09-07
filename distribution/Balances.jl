@@ -25,20 +25,37 @@ include("Control.jl")
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 # ----------------------------------------------------------------------------------- #
+#
+# ----------------------------------------------------------------------------------- #
+# Balances: Evaluates model equations given time, state and the data_dictionary.
+# Type: GRN-JULIA
+# Version: 1.0
+#
+# Input arguments:
+# t  - current time
+# x  - state array
+# data_dictionary  - Data dictionary instance (holds model parameters)
+#
+# Return arguments:
+# dxdt - derivative array at current time step
+# ----------------------------------------------------------------------------------- #
 function Balances(t,x,data_dictionary)
 
   # correct for negatives -
   idx_small = find(x.<0)
   x[idx_small] = 0.0
 
-  # Call my kinetics function -
-  rate_array = Kinetics(t,x,data_dictionary)
+  # Calculate the kinetics -
+  transcription_rate_array = calculate_transcription_rates(t,x,data_dictionary)
+  translation_rate_array = calculate_translation_rates(t,x,data_dictionary)
+  mRNA_degradation_rate_array = calculate_mRNA_degradation_rates(t,x,data_dictionary)
+  protein_degradation_rate_array = calculate_protein_degradation_rates(t,x,data_dictionary)
 
   # Call my control function -
   control_array = Control(t,x,data_dictionary)
 
   # Compute the modified rate -
-  rate_array = rate_array.*control_array;
+  transcription_rate_array = transcription_rate_array.*control_array;
   dxdt_array = zeros(18)
 
   # define the balance equations -

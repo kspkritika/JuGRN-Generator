@@ -1,4 +1,4 @@
-macro include_function(src_file_name)
+macro include_function(src_file_name,pad_string)
 
   # create src_buffer -
   src_buffer::Array{AbstractString} = AbstractString[]
@@ -15,7 +15,7 @@ macro include_function(src_file_name)
 
   string_value = ""
   for line in src_buffer
-    string_value *= "\t"*line
+    string_value *= pad_string*line
   end
 
   return string_value

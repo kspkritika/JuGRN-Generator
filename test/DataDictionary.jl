@@ -93,7 +93,7 @@ function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::F
 	# What is the average gene concentration -
 	avg_gene_concentration = avg_gene_number*(1/av_number)*(1/V)*1e9                  # nM
 	
-	# How fast do my ells die?
+	# How fast do my cells die?
 	death_rate_constant = 0.2*maximum_specific_growth_rate                            # hr^-1
 	
 	# Saturation constants for translation and trascription -

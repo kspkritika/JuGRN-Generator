@@ -146,7 +146,7 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
 
   buffer *= "\t]\n"
   buffer *= "\n"
-  buffer *= @include_function("txtl_constants")
+  buffer *= @include_function("txtl_constants","\t")
   buffer *= "\n"
 
   buffer *= "\t# =============================== DO NOT EDIT BELOW THIS LINE ============================== #\n"
@@ -183,6 +183,9 @@ function build_kinetics_buffer(problem_object::ProblemObject)
 
   filename = "Kinetics.jl"
 
+  # get list of species from the po -
+  list_of_species::Array{SpeciesObject} = problem_object.list_of_species
+
   # build the header -
   header_buffer = build_copyright_header_buffer(problem_object)
 
@@ -191,6 +194,11 @@ function build_kinetics_buffer(problem_object::ProblemObject)
   buffer *= header_buffer
   buffer *= "function calculate_transcription_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})\n"
   buffer *= "\n"
+
+  # get list of species from the po -
+  buffer *="\t# Alias the species - \n"
+
+
   buffer *= "end\n"
   buffer *= "\n"
 
@@ -208,12 +216,86 @@ function build_kinetics_buffer(problem_object::ProblemObject)
 
   buffer *= "function calculate_mRNA_degradation_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})\n"
   buffer *= "\n"
+
+
+  buffer *="\t# Alias the species - \n"
+  number_of_mRNA = 0
+  for (index,species_object) in enumerate(list_of_species)
+
+    # grab the species -
+    species_symbol = species_object.species_symbol
+    species_type = species_object.species_type
+
+    # grab -
+    if (species_type == :mrna)
+      buffer *= "\t$(species_symbol) = x[$(index)]\n"
+      number_of_mRNA = number_of_mRNA + 1
+    end
+  end
+  buffer *= "\n"
+  buffer *="\t# Initialize the degrdation array - \n"
+  buffer *="\tdegradation_rate_array = zeros($(number_of_mRNA))\n"
+  buffer *="\tmRNA_degrdation_constant = data_dictionary[\"degradation_constant_mRNA\"]\n"
+  buffer *= "\n"
+  buffer *="\t# Calculate the degradation_rate_array - \n"
+  counter = 1
+  for (index,species_object) in enumerate(list_of_species)
+
+    # grab the species -
+    species_symbol = species_object.species_symbol
+    species_type = species_object.species_type
+
+    # grab -
+    if (species_type == :mrna)
+      buffer *= "\tdegradation_rate_array[$(counter)] = (mRNA_degrdation_constant)*$(species_symbol)\n"
+      counter = counter + 1
+    end
+  end
+  buffer *= "\n"
+  buffer *= "\t# return the degrdation rate array - \n"
+  buffer *= "\treturn degradation_rate_array\n"
   buffer *= "end\n"
   buffer *= "\n"
-  buffer *= "\n"
+
 
   buffer *= "function calculate_protein_degradation_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})\n"
   buffer *= "\n"
+  buffer *="\t# Alias the species - \n"
+  number_of_proteins = 0
+  for (index,species_object) in enumerate(list_of_species)
+
+    # grab the species -
+    species_symbol = species_object.species_symbol
+    species_type = species_object.species_type
+
+    # grab -
+    if (species_type == :protein)
+      buffer *= "\t$(species_symbol) = x[$(index)]\n"
+      number_of_proteins = number_of_proteins + 1
+    end
+  end
+  buffer *= "\n"
+  buffer *="\t# Initialize the degrdation array - \n"
+  buffer *="\tdegradation_rate_array = zeros($(number_of_proteins))\n"
+  buffer *="\tprotein_degrdation_constant = data_dictionary[\"degradation_constant_protein\"]\n"
+  buffer *= "\n"
+  buffer *="\t# Calculate the degradation_rate_array - \n"
+  counter = 1
+  for (index,species_object) in enumerate(list_of_species)
+
+    # grab the species -
+    species_symbol = species_object.species_symbol
+    species_type = species_object.species_type
+
+    # grab -
+    if (species_type == :protein)
+      buffer *= "\tdegradation_rate_array[$(counter)] = (protein_degrdation_constant)*$(species_symbol)\n"
+      counter = counter + 1
+    end
+  end
+  buffer *= "\n"
+  buffer *= "\t# return the degrdation rate array - \n"
+  buffer *= "\treturn degradation_rate_array\n"
   buffer *= "end\n"
   buffer *= "\n"
   buffer *= "\n"
