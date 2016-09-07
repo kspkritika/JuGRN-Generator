@@ -33,8 +33,23 @@ end
 
 function calculate_translation_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 
-end
+	# Alias the species - 
+	mRNA_gene_1 = x[3]
+	mRNA_gene_2 = x[4]
 
+	# Initialize the translation rate - 
+	translation_rate_array = zeros(2)
+	KSAT = data_dictionary["saturation_constant_translation"]
+	kcat_translation = data_dictionary["kcat_translation"]
+	ribosome_concentration = data_dictionary["ribosome_concentration"]
+
+	# Populate the translation rate array - 
+	translation_rate_array[1] = kcat_translation*(ribosome_concentration)*((mRNA_gene_1)/(KSAT+mRNA_gene_1))
+	translation_rate_array[2] = kcat_translation*(ribosome_concentration)*((mRNA_gene_2)/(KSAT+mRNA_gene_2))
+
+	# return translation array - 
+	return translation_rate_array
+end
 
 function calculate_mRNA_degradation_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 

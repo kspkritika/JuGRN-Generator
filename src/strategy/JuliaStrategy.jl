@@ -210,13 +210,53 @@ function build_kinetics_buffer(problem_object::ProblemObject)
 
   buffer *= "function calculate_translation_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})\n"
   buffer *= "\n"
+
+  buffer *="\t# Alias the species - \n"
+  number_of_mRNA = 0
+  for (index,species_object) in enumerate(list_of_species)
+
+    # grab the species -
+    species_symbol = species_object.species_symbol
+    species_type = species_object.species_type
+
+    # grab -
+    if (species_type == :mrna)
+      buffer *= "\t$(species_symbol) = x[$(index)]\n"
+      number_of_mRNA = number_of_mRNA + 1
+    end
+  end
+  buffer *="\n"
+  buffer *="\t# Initialize the translation rate - \n"
+  buffer *="\ttranslation_rate_array = zeros($(number_of_mRNA))\n"
+  buffer *="\tKSAT = data_dictionary[\"saturation_constant_translation\"]\n"
+  buffer *="\tkcat_translation = data_dictionary[\"kcat_translation\"]\n"
+  buffer *="\tribosome_concentration = data_dictionary[\"ribosome_concentration\"]\n"
+  buffer *="\n"
+  buffer *="\t# Populate the translation rate array - \n"
+  counter = 1
+  for (index,species_object) in enumerate(list_of_species)
+
+    # grab the species -
+    species_symbol = species_object.species_symbol
+    species_type = species_object.species_type
+
+    # grab -
+    if (species_type == :mrna)
+      buffer *= "\ttranslation_rate_array[$(counter)] = kcat_translation*(ribosome_concentration)*(($(species_symbol))/(KSAT+$(species_symbol)))\n"
+      counter = counter + 1
+    end
+  end
+
+  buffer *="\n"
+  buffer *= "\t# return translation array - \n"
+  buffer *= "\treturn translation_rate_array\n"
   buffer *= "end\n"
   buffer *= "\n"
-  buffer *= "\n"
 
+
+  # calculate_mRNA_degradation_rates -
   buffer *= "function calculate_mRNA_degradation_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})\n"
   buffer *= "\n"
-
 
   buffer *="\t# Alias the species - \n"
   number_of_mRNA = 0
@@ -257,7 +297,7 @@ function build_kinetics_buffer(problem_object::ProblemObject)
   buffer *= "end\n"
   buffer *= "\n"
 
-
+  # calculate_protein_degradation_rates
   buffer *= "function calculate_protein_degradation_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})\n"
   buffer *= "\n"
   buffer *="\t# Alias the species - \n"
