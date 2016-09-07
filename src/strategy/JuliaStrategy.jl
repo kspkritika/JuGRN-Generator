@@ -64,11 +64,97 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
   # build the header -
   header_buffer = build_copyright_header_buffer(problem_object)
 
+  # get list of species from the po -
+  list_of_species::Array{SpeciesObject} = problem_object.list_of_species
+
   # initialize the buffer -
   buffer = ""
   buffer *= header_buffer
-  buffer *= "function DataDictionary()\n"
+  buffer *= "function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::Float64)\n"
   buffer *= "\n"
+  buffer *= "\t# initial condition array - \n"
+  buffer *= "\tinitial_condition_array = [\n"
+
+  # write out species -
+  for (index,species_object) in enumerate(list_of_species)
+
+    # grab the species -
+    species_symbol = species_object.species_symbol
+    species_type = species_object.species_type
+
+    if (species_type == :gene)
+      buffer *= "\t\t2.0\t;\t#$(index)\t$(species_symbol)\n"
+    elseif (species_type == :mrna || species_type == :protein)
+      buffer *= "\t\t0.0\t;\t#$(index)\t$(species_symbol)\n"
+    end
+  end
+
+  buffer *= "\t]\n"
+  buffer *= "\n"
+  buffer *= "\t# array of gene lengths - \n"
+  buffer *= "\tgene_coding_length_array = [\n"
+
+  # write out the length of genes -
+  for (index,species_object) in enumerate(list_of_species)
+
+    # grab the species -
+    species_symbol = species_object.species_symbol
+    species_type = species_object.species_type
+
+    if (species_type == :gene)
+      buffer *= "\t\t15000\t;\t#$(index)\t$(species_symbol)\n"
+    end
+  end
+  buffer *= "\t]\n"
+  buffer *= "\n"
+  buffer *= "\t# array of mRNA coding lengths - \n"
+  buffer *= "\tmRNA_coding_length_array = [\n"
+
+  # write out the length of genes -
+  counter = 1
+  for (index,species_object) in enumerate(list_of_species)
+
+    # grab the species -
+    species_symbol = species_object.species_symbol
+    species_type = species_object.species_type
+
+    if (species_type == :mrna)
+      buffer *= "\t\tgene_coding_length_array[$(counter)]\t;\t#$(index)\t$(counter)\t$(species_symbol)\n"
+      counter = counter + 1
+    end
+  end
+
+  buffer *= "\t]\n"
+  buffer *= "\n"
+
+  buffer *= "\t# array of mRNA coding lengths - \n"
+  buffer *= "\tprotein_coding_length_array = [\n"
+
+  # write out the length of genes -
+  counter = 1
+  for (index,species_object) in enumerate(list_of_species)
+
+    # grab the species -
+    species_symbol = species_object.species_symbol
+    species_type = species_object.species_type
+
+    if (species_type == :protein)
+      buffer *= "\t\tround((0.33)*mRNA_coding_length_array[$(counter)])\t;\t#$(index)\t$(counter)\t$(species_symbol)\n"
+      counter = counter + 1
+    end
+  end
+
+  buffer *= "\t]\n"
+  buffer *= "\n"
+
+  buffer *= "\t# =============================== DO NOT EDIT BELOW THIS LINE ============================== #\n"
+  buffer *= "\tdata_dictionary = Dict{AbstractString,Any}()\n"
+  buffer *= "\tdata_dictionary[\"initial_condition_array\"] = initial_condition_array\n"
+  buffer *= "\tdata_dictionary[\"gene_coding_length_array\"] = gene_coding_length_array\n"
+  buffer *= "\tdata_dictionary[\"mRNA_coding_length_array\"] = mRNA_coding_length_array\n"
+  buffer *= "\tdata_dictionary[\"protein_coding_length_array\"] = protein_coding_length_array\n"
+  buffer *= "\t# =============================== DO NOT EDIT ABOVE THIS LINE ============================== #\n"
+  buffer *= "\treturn data_dictionary\n"
   buffer *= "end\n"
 
   # build the component -
