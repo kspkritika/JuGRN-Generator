@@ -24,10 +24,25 @@
 function calculate_transcription_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 
 	# Alias the species - 
+	gene_1 = x[1]
+	gene_2 = x[2]
+
+	# Initialize the transcription rate - 
+	transcription_rate_array = zeros(2)
+	KSAT = data_dictionary["saturation_constant_transcription"]
+	kcat_transcription = data_dictionary["kcat_transcription"]
+	rnapII_concentration = data_dictionary["rnapII_concentration"]
+
+	# Populate the transcription rate array - 
+	transcription_rate_array[1] = kcat_transcription*(rnapII_concentration)*((gene_1)/(KSAT+gene_1))
+	transcription_rate_array[2] = kcat_transcription*(rnapII_concentration)*((gene_2)/(KSAT+gene_2))
+
+	# return transcription_rate_array - 
+	return transcription_rate_array
 end
 
-function calculate_background_transcription_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
-
+function calculate_background_transcription_rates(t::Float64,x::Array{Float64,1},transcription_rate_array::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
+	return zeros(length(x))
 end
 
 

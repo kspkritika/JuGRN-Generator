@@ -17,68 +17,6 @@ function write_program_components_to_disk(file_path::AbstractString,set_of_progr
   end
 end
 
-# function build_reaction_comment_string(reaction_object::ReactionObject)
-#
-#   # Ok, let's build a comment from the reactioj object {Reactants} -> {Products}
-#   list_of_reactants = reaction_object.list_of_reactants
-#   list_of_products = reaction_object.list_of_products
-#
-#   # Build reactant string -
-#   reactant_buffer = ""
-#   for species_object::SpeciesObject in list_of_reactants
-#
-#     # symbol etc -
-#     species_symbol = species_object.species_symbol
-#     stoichiometric_coefficient = species_object.stoichiometric_coefficient
-#
-#     if (stoichiometric_coefficient == 1.0)
-#       # fill reactant buffer -
-#       reactant_buffer *= "$(species_symbol)+"
-#     else
-#       # fill reactant buffer -
-#       reactant_buffer *= "$(stoichiometric_coefficient)\*$(species_symbol)+"
-#     end
-#   end
-#
-#   # Cutoff the trailing +
-#   reactant_buffer = reactant_buffer[1:end-1]
-#
-#   # Check for empty ...
-#   if (length(list_of_reactants) == 0)
-#     reactant_buffer = "[]"
-#   end
-#
-#   # Build product string -
-#   product_buffer = ""
-#   for species_object::SpeciesObject in list_of_products
-#
-#     # symbol etc -
-#     species_symbol = species_object.species_symbol
-#     stoichiometric_coefficient = species_object.stoichiometric_coefficient
-#
-#     if (stoichiometric_coefficient == 1.0)
-#       # fill product buffer -
-#       product_buffer *= "$(species_symbol)+"
-#     else
-#       # fill product buffer -
-#       product_buffer *= "$(stoichiometric_coefficient)\*$(species_symbol)+"
-#     end
-#   end
-#
-#   # Cutoff the trailing +
-#   product_buffer = product_buffer[1:end-1]
-#
-#   # Check for empty ...
-#   if (length(list_of_products) == 0)
-#     product_buffer = "[]"
-#   end
-#
-#   # comment string -
-#   comment_buffer = ""
-#   comment_buffer = reactant_buffer*" --> "*product_buffer
-#   return comment_buffer
-# end
-
 function transfer_distribution_files(path_to_distribution_files::AbstractString,
                                       path_to_output_files::AbstractString,
                                       file_extension::AbstractString)
@@ -111,6 +49,153 @@ function transfer_distribution_files(path_to_distribution_files::AbstractString,
     write(outfile,src_buffer);
     close(outfile);
   end
+end
+
+function number_of_species_of_type(list_of_species::Array{SpeciesObject},species_type::Symbol)
+
+  number_of_species = 0
+  for species_object in list_of_species
+    local_species_type = species_object.species_type
+    if (local_species_type == species_type)
+      number_of_species = number_of_species + 1
+    end
+  end
+
+  return number_of_species
+end
+
+function generate_degradation_matrix_buffer(problem_object::ProblemObject)
+
+  # initialize the buffer -
+  buffer = ""
+
+  # list of species -
+  list_of_species = problem_object.list_of_species
+
+  # get dimension -
+  number_of_genes = number_of_species_of_type(list_of_species,:gene)
+  number_of_mRNA = number_of_species_of_type(list_of_species,:mrna)
+  number_of_proteins = number_of_species_of_type(list_of_species,:protein)
+  number_of_degrdation_reactions = number_of_mRNA+number_of_proteins
+
+  # build the gene block -
+  for gene_index = 1:number_of_genes
+    for reaction_index = 1:number_of_degrdation_reactions
+      buffer *= " 0.0 "
+    end
+
+    buffer *= "\n"
+  end
+
+  for outer_reaction_index = 1:number_of_degrdation_reactions
+
+    for inner_reaction_index = 1:number_of_degrdation_reactions
+
+      if (outer_reaction_index == inner_reaction_index)
+        buffer *= " -1.0 "
+      else
+        buffer *= " 0.0 "
+      end
+
+    end
+
+    buffer *= "\n"
+  end
+
+  # build the component -
+  filename = "Degradation.dat"
+  program_component::ProgramComponent = ProgramComponent()
+  program_component.filename = filename
+  program_component.buffer = buffer
+
+  # return -
+  return (program_component)
+end
+
+function generate_stoichiomteric_matrix_buffer(problem_object::ProblemObject)
+
+  # list of species -
+  list_of_species = problem_object.list_of_species
+
+  # initialize the buffer -
+  buffer = ""
+
+  # how many species?
+  number_of_species = length(list_of_species)
+  for row_species_index = 1:number_of_species
+
+    # what is the species type?
+    species_object_row = list_of_species[row_species_index]
+    species_type_row = species_object_row.species_type
+
+    for col_species_index = 1:number_of_species
+
+      # grab the col species type?
+      species_object_col = list_of_species[col_species_index]
+      species_type_col = species_object_col.species_type
+
+      if (species_type_row == species_type_col && row_species_index == col_species_index)
+        buffer *= " 1.0 "
+      else
+        buffer *= " 0.0 "
+      end
+    end
+
+    # add a newline -
+    buffer *="\n"
+  end
+
+  # build the component -
+  filename = "Network.dat"
+  program_component::ProgramComponent = ProgramComponent()
+  program_component.filename = filename
+  program_component.buffer = buffer
+
+  # return -
+  return (program_component)
+end
+
+function generate_dilution_matrix_buffer(problem_object::ProblemObject)
+
+  # list of species -
+  list_of_species = problem_object.list_of_species
+
+  # initialize the buffer -
+  buffer = ""
+
+  # how many species?
+  number_of_species = length(list_of_species)
+  for row_species_index = 1:number_of_species
+
+    # what is the species type?
+    species_object = list_of_species[row_species_index]
+    species_type = species_object.species_type
+
+    for col_species_index = 1:number_of_species
+
+      if (row_species_index == col_species_index)
+        if (species_type == :gene)
+          buffer *= " 0.0 "
+        else
+          buffer *= " -1.0 "
+        end
+      else
+        buffer *= " 0.0 "
+      end
+    end # inner for
+
+    # add a new line -
+    buffer *= "\n"
+  end # outer for
+
+  # build the component -
+  filename = "Dilution.dat"
+  program_component::ProgramComponent = ProgramComponent()
+  program_component.filename = filename
+  program_component.buffer = buffer
+
+  # return -
+  return (program_component)
 end
 
 function partition!(list_of_species::Array{SpeciesObject})

@@ -72,24 +72,10 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
   buffer *= header_buffer
   buffer *= "function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::Float64)\n"
   buffer *= "\n"
-  buffer *= "\t# initial condition array - \n"
-  buffer *= "\tinitial_condition_array = [\n"
-
-  # write out species -
-  for (index,species_object) in enumerate(list_of_species)
-
-    # grab the species -
-    species_symbol = species_object.species_symbol
-    species_type = species_object.species_type
-
-    if (species_type == :gene)
-      buffer *= "\t\t2.0\t;\t# $(index)\t$(species_symbol)\n"
-    elseif (species_type == :mrna || species_type == :protein)
-      buffer *= "\t\t0.0\t;\t# $(index)\t$(species_symbol)\n"
-    end
-  end
-
-  buffer *= "\t]\n"
+  buffer *= "\t# stoichiometric_matrix and dilution_matrix - \n"
+  buffer *= "\tstoichiometric_matrix = readdlm(\"./Network.dat\")\n"
+  buffer *= "\tdilution_matrix = readdlm(\"./Dilution.dat\")\n"
+  buffer *= "\tdegradation_matrix = readdlm(\"./Degradation.dat\")\n"
   buffer *= "\n"
   buffer *= "\t# array of gene lengths - \n"
   buffer *= "\tgene_coding_length_array = [\n"
@@ -149,6 +135,26 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
   buffer *= @include_function("txtl_constants","\t")
   buffer *= "\n"
 
+  buffer *= "\t# initial condition array - \n"
+  buffer *= "\tinitial_condition_array = [\n"
+
+  # write out species -
+  for (index,species_object) in enumerate(list_of_species)
+
+    # grab the species -
+    species_symbol = species_object.species_symbol
+    species_type = species_object.species_type
+
+    if (species_type == :gene)
+      buffer *= "\t\tavg_gene_concentration\t;\t# $(index)\t$(species_symbol)\n"
+    elseif (species_type == :mrna || species_type == :protein)
+      buffer *= "\t\t0.0\t;\t# $(index)\t$(species_symbol)\n"
+    end
+  end
+
+  buffer *= "\t]\n"
+  buffer *= "\n"
+
   buffer *= "\t# =============================== DO NOT EDIT BELOW THIS LINE ============================== #\n"
   buffer *= "\tdata_dictionary = Dict{AbstractString,Any}()\n"
   buffer *= "\tdata_dictionary[\"initial_condition_array\"] = initial_condition_array\n"
@@ -166,6 +172,10 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
   buffer *= "\tdata_dictionary[\"avg_gene_concentration\"] = avg_gene_concentration \n"
   buffer *= "\tdata_dictionary[\"saturation_constant_transcription\"] = saturation_transcription \n"
   buffer *= "\tdata_dictionary[\"saturation_constant_translation\"] = saturation_translation \n"
+  buffer *= "\n"
+  buffer *= "\tdata_dictionary[\"stoichiometric_matrix\"] = stoichiometric_matrix\n"
+  buffer *= "\tdata_dictionary[\"dilution_matrix\"] = dilution_matrix\n"
+  buffer *= "\tdata_dictionary[\"degradation_matrix\"] = degradation_matrix\n"
   buffer *= "\t# =============================== DO NOT EDIT ABOVE THIS LINE ============================== #\n"
   buffer *= "\treturn data_dictionary\n"
   buffer *= "end\n"
@@ -195,15 +205,53 @@ function build_kinetics_buffer(problem_object::ProblemObject)
   buffer *= "function calculate_transcription_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})\n"
   buffer *= "\n"
 
-  # get list of species from the po -
   buffer *="\t# Alias the species - \n"
+  number_of_genes = 0
+  for (index,species_object) in enumerate(list_of_species)
 
+    # grab the species -
+    species_symbol = species_object.species_symbol
+    species_type = species_object.species_type
+
+    # grab -
+    if (species_type == :gene)
+      buffer *= "\t$(species_symbol) = x[$(index)]\n"
+      number_of_genes = number_of_genes + 1
+    end
+  end
+  buffer *="\n"
+  buffer *="\t# Initialize the transcription rate - \n"
+  buffer *="\ttranscription_rate_array = zeros($(number_of_genes))\n"
+  buffer *="\tKSAT = data_dictionary[\"saturation_constant_transcription\"]\n"
+  buffer *="\tkcat_transcription = data_dictionary[\"kcat_transcription\"]\n"
+  buffer *="\trnapII_concentration = data_dictionary[\"rnapII_concentration\"]\n"
+  buffer *="\n"
+  buffer *="\t# Populate the transcription rate array - \n"
+  counter = 1
+  for (index,species_object) in enumerate(list_of_species)
+
+    # grab the species -
+    species_symbol = species_object.species_symbol
+    species_type = species_object.species_type
+
+    # grab -
+    if (species_type == :gene)
+      buffer *= "\ttranscription_rate_array[$(counter)] = kcat_transcription*(rnapII_concentration)*(($(species_symbol))/(KSAT+$(species_symbol)))\n"
+      counter = counter + 1
+    end
+  end
+
+  buffer *="\n"
+  buffer *= "\t# return transcription_rate_array - \n"
+  buffer *= "\treturn transcription_rate_array\n"
 
   buffer *= "end\n"
   buffer *= "\n"
 
-  buffer *= "function calculate_background_transcription_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})\n"
-  buffer *= "\n"
+
+  # calculate_background_transcription_rates -
+  buffer *= "function calculate_background_transcription_rates(t::Float64,x::Array{Float64,1},transcription_rate_array::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})\n"
+  buffer *= "\treturn zeros(length(x))\n"
   buffer *= "end\n"
   buffer *= "\n"
   buffer *= "\n"

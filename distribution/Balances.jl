@@ -45,38 +45,31 @@ function Balances(t,x,data_dictionary)
   idx_small = find(x.<0)
   x[idx_small] = 0.0
 
+  # Get model matricies and other required data from the data_dictionary -
+  stoichiometric_matrix = data_dictionary["stoichiometric_matrix"]
+	dilution_matrix = data_dictionary["dilution_matrix"]
+	degradation_matrix = data_dictionary["degradation_matrix"]
+  mugmax = data_dictionary["maximum_specific_growth_rate"]
+
   # Calculate the kinetics -
   transcription_rate_array = calculate_transcription_rates(t,x,data_dictionary)
   translation_rate_array = calculate_translation_rates(t,x,data_dictionary)
   mRNA_degradation_rate_array = calculate_mRNA_degradation_rates(t,x,data_dictionary)
   protein_degradation_rate_array = calculate_protein_degradation_rates(t,x,data_dictionary)
+  background_transcription_rate_array = calculate_background_transcription_rates(t,x,data_dictionary)
 
   # Call my control function -
   control_array = Control(t,x,data_dictionary)
 
   # Compute the modified rate -
   transcription_rate_array = transcription_rate_array.*control_array;
-  dxdt_array = zeros(18)
 
-  # define the balance equations -
-  dxdt_array[1]  = -rate_array[2]-rate_array[1]                    # 1 Prothrombin FII
-  dxdt_array[2]  = rate_array[2]+rate_array[1]-rate_array[4]       # 2 thrombin FIIa
-  dxdt_array[3]  = -rate_array[3]                                  # 3 PC
-  dxdt_array[4]  = rate_array[3]-rate_array[14]                    # 4 APC
-  dxdt_array[5]  = -rate_array[4]                                  # 5 ATIII
-  dxdt_array[6]  = 0.0                                             # 6 TM acts as an enzyme
-  dxdt_array[7]  = 0.0                                             # 7 Trigger
-  dxdt_array[8] = rate_array[9]-rate_array[12]                     # 8 Fibrin
-  dxdt_array[9] = rate_array[10]+rate_array[11]-rate_array[13]     # 9 Plasmin
-  dxdt_array[10] = -rate_array[5] - rate_array[18]                 # 10 Fibrinogen
-  dxdt_array[11] = -rate_array[10] - rate_array[11]                # 11 Plasminogen
-  dxdt_array[12] = -rate_array[15]                                 # 12 tPA
-  dxdt_array[13] = -rate_array[16]                                 # 13 uPA
-  dxdt_array[14] = 1.0*(rate_array[5]-rate_array[6])               # 14 Fibrin monomer
-  dxdt_array[15] = rate_array[6]+rate_array[8]-rate_array[7]       # 15 Protofibril
-  dxdt_array[16] = -rate_array[13]                                 # 16 Antiplasmin
-  dxdt_array[17] = -rate_array[14]-rate_array[15]-rate_array[16]   # 17 PAI_1
-  dxdt_array[18] = 1.0*(rate_array[7]-rate_array[9]-rate_array[17])# 18 Fibers
+  # rate array -
+  txtl_rate_array = [transcription_rate_array ; translation_rate_array]
+  degradation_rate_array = [mRNA_degradation_rate_array ; protein_degradation_rate_array]
+
+  # Evaluate the balance equations -
+  dxdt_array = stoichiometric_matrix*txtl_rate_array+degradation_matrix*degradation_rate_array+mugmax*dilution_matrix*x+background_transcription_rate_array
 
   # return -
   return dxdt_array

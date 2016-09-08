@@ -61,6 +61,18 @@ function main()
   program_component_control = build_control_buffer(problem_object)
   push!(component_set,program_component_control)
 
+  # Write the dilution_matrix --
+  program_component_dilution_matrix = generate_dilution_matrix_buffer(problem_object)
+  push!(component_set,program_component_dilution_matrix)
+
+  # Write the degradation_matrix --
+  program_component_degradation_matrix = generate_degradation_matrix_buffer(problem_object)
+  push!(component_set,program_component_degradation_matrix)
+
+  # Write the stoichiometric_matrix --
+  program_component_stoichiometric_matrix = generate_stoichiomteric_matrix_buffer(problem_object)
+  push!(component_set,program_component_stoichiometric_matrix)
+
   # Dump the component_set to disk -
   path_to_output_file = parsed_args["o"]
   write_program_components_to_disk(path_to_output_file,component_set)

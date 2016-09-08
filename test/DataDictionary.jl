@@ -23,15 +23,10 @@
 # ----------------------------------------------------------------------------------- #
 function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::Float64)
 
-	# initial condition array - 
-	initial_condition_array = [
-		2.0	;	# 1	gene_1
-		2.0	;	# 2	gene_2
-		0.0	;	# 3	mRNA_gene_1
-		0.0	;	# 4	mRNA_gene_2
-		0.0	;	# 5	protein_gene_1
-		0.0	;	# 6	protein_gene_2
-	]
+	# stoichiometric_matrix and dilution_matrix - 
+	stoichiometric_matrix = readdlm("./Network.dat")
+	dilution_matrix = readdlm("./Dilution.dat")
+	degradation_matrix = readdlm("./Degradation.dat")
 
 	# array of gene lengths - 
 	gene_coding_length_array = [
@@ -101,6 +96,16 @@ function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::F
 	saturation_translation = 100000*(1/av_number)*(1/V)*1e9                           # nM
 	# -------------------------------------------------------------------------------------------#
 
+	# initial condition array - 
+	initial_condition_array = [
+		avg_gene_concentration	;	# 1	gene_1
+		avg_gene_concentration	;	# 2	gene_2
+		0.0	;	# 3	mRNA_gene_1
+		0.0	;	# 4	mRNA_gene_2
+		0.0	;	# 5	protein_gene_1
+		0.0	;	# 6	protein_gene_2
+	]
+
 	# =============================== DO NOT EDIT BELOW THIS LINE ============================== #
 	data_dictionary = Dict{AbstractString,Any}()
 	data_dictionary["initial_condition_array"] = initial_condition_array
@@ -118,6 +123,10 @@ function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::F
 	data_dictionary["avg_gene_concentration"] = avg_gene_concentration 
 	data_dictionary["saturation_constant_transcription"] = saturation_transcription 
 	data_dictionary["saturation_constant_translation"] = saturation_translation 
+
+	data_dictionary["stoichiometric_matrix"] = stoichiometric_matrix
+	data_dictionary["dilution_matrix"] = dilution_matrix
+	data_dictionary["degradation_matrix"] = degradation_matrix
 	# =============================== DO NOT EDIT ABOVE THIS LINE ============================== #
 	return data_dictionary
 end
