@@ -324,6 +324,75 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
   buffer *= "\t]\n"
   buffer *= "\n"
 
+  # Setup parameters dictionaries -
+  list_of_genes = extract_species_of_type(list_of_species,:gene)
+
+  # get list of connections -
+  list_of_connections::Array{ConnectionObject} = problem_object.list_of_connections
+  buffer *= "\tbinding_parameter_dictionary = Dict{AbstractString,Float64}()\n"
+  for (index,gene_object) in enumerate(list_of_genes)
+
+    # get gene symbol -
+    gene_symbol = gene_object.species_symbol
+
+    # connections -
+    activating_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:activate)
+    inhibiting_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:inhibit)
+
+    for connection_object in activating_connections
+      # actor -
+      actor_list = connection_object.connection_actor_set
+      for actor_object in actor_list
+        actor_symbol = actor_object.species_symbol
+        buffer *= "\tbinding_parameter_dictionary[\"n_$(gene_symbol)_$(actor_symbol)\"] = 1.0\n"
+        buffer *= "\tbinding_parameter_dictionary[\"K_$(gene_symbol)_$(actor_symbol)\"] = 1.0\n"
+      end
+    end
+
+    for connection_object in inhibiting_connections
+
+      # actor -
+      actor_list = connection_object.connection_actor_set
+      for actor_object in actor_list
+        actor_symbol = actor_object.species_symbol
+        buffer *= "\tbinding_parameter_dictionary[\"n_$(gene_symbol)_$(actor_symbol)\"] = 1.0\n"
+        buffer *= "\tbinding_parameter_dictionary[\"K_$(gene_symbol)_$(actor_symbol)\"] = 1.0\n"
+      end
+    end
+  end
+
+  buffer *= "\n"
+  buffer *= "\t# Alias the control function parameters - \n"
+  buffer *= "\tcontrol_parameter_dictionary = Dict{AbstractString,Float64}()\n"
+  for (index,gene_object) in enumerate(list_of_genes)
+
+    # get gene symbol -
+    gene_symbol = gene_object.species_symbol
+
+    # connections -
+    activating_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:activate)
+    inhibiting_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:inhibit)
+
+    for connection_object in activating_connections
+      # actor -
+      actor_list = connection_object.connection_actor_set
+      for actor_object in actor_list
+        actor_symbol = actor_object.species_symbol
+        buffer *= "\tcontrol_parameter_dictionary[\"W_$(gene_symbol)_$(actor_symbol)\"] = 1.0\n"
+      end
+    end
+
+    for connection_object in inhibiting_connections
+      # actor -
+      actor_list = connection_object.connection_actor_set
+      for actor_object in actor_list
+        actor_symbol = actor_object.species_symbol
+        buffer *= "\tcontrol_parameter_dictionary[\"W_$(gene_symbol)_$(actor_symbol)\"] = 1.0\n"
+      end
+    end
+  end
+
+  buffer *= "\n"
   buffer *= "\t# =============================== DO NOT EDIT BELOW THIS LINE ============================== #\n"
   buffer *= "\tdata_dictionary = Dict{AbstractString,Any}()\n"
   buffer *= "\tdata_dictionary[\"initial_condition_array\"] = initial_condition_array\n"
@@ -345,6 +414,9 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
   buffer *= "\tdata_dictionary[\"stoichiometric_matrix\"] = stoichiometric_matrix\n"
   buffer *= "\tdata_dictionary[\"dilution_matrix\"] = dilution_matrix\n"
   buffer *= "\tdata_dictionary[\"degradation_matrix\"] = degradation_matrix\n"
+  buffer *= "\n"
+  buffer *= "\tdata_dictionary[\"binding_parameter_dictionary\"] = binding_parameter_dictionary\n"
+  buffer *= "\tdata_dictionary[\"control_parameter_dictionary\"] = control_parameter_dictionary\n"
   buffer *= "\t# =============================== DO NOT EDIT ABOVE THIS LINE ============================== #\n"
   buffer *= "\treturn data_dictionary\n"
   buffer *= "end\n"

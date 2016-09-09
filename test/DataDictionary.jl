@@ -106,6 +106,20 @@ function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::F
 		0.0	;	# 6	protein_gene_2
 	]
 
+	binding_parameter_dictionary = Dict{AbstractString,Float64}()
+	binding_parameter_dictionary["n_gene_1_gene_1"] = 1.0
+	binding_parameter_dictionary["K_gene_1_gene_1"] = 1.0
+	binding_parameter_dictionary["n_gene_1_gene_2"] = 1.0
+	binding_parameter_dictionary["K_gene_1_gene_2"] = 1.0
+	binding_parameter_dictionary["n_gene_2_gene_1"] = 1.0
+	binding_parameter_dictionary["K_gene_2_gene_1"] = 1.0
+
+	# Alias the control function parameters - 
+	control_parameter_dictionary = Dict{AbstractString,Float64}()
+	control_parameter_dictionary["W_gene_1_gene_1"] = 1.0
+	control_parameter_dictionary["W_gene_1_gene_2"] = 1.0
+	control_parameter_dictionary["W_gene_2_gene_1"] = 1.0
+
 	# =============================== DO NOT EDIT BELOW THIS LINE ============================== #
 	data_dictionary = Dict{AbstractString,Any}()
 	data_dictionary["initial_condition_array"] = initial_condition_array
@@ -127,6 +141,9 @@ function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::F
 	data_dictionary["stoichiometric_matrix"] = stoichiometric_matrix
 	data_dictionary["dilution_matrix"] = dilution_matrix
 	data_dictionary["degradation_matrix"] = degradation_matrix
+
+	data_dictionary["binding_parameter_dictionary"] = binding_parameter_dictionary
+	data_dictionary["control_parameter_dictionary"] = control_parameter_dictionary
 	# =============================== DO NOT EDIT ABOVE THIS LINE ============================== #
 	return data_dictionary
 end
