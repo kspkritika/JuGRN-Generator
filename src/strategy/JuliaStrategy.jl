@@ -345,7 +345,7 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
       for actor_object in actor_list
         actor_symbol = actor_object.species_symbol
         buffer *= "\tbinding_parameter_dictionary[\"n_$(gene_symbol)_$(actor_symbol)\"] = 1.0\n"
-        buffer *= "\tbinding_parameter_dictionary[\"K_$(gene_symbol)_$(actor_symbol)\"] = 1.0\n"
+        buffer *= "\tbinding_parameter_dictionary[\"K_$(gene_symbol)_$(actor_symbol)\"] = 10.0\n"
       end
     end
 
@@ -356,7 +356,7 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
       for actor_object in actor_list
         actor_symbol = actor_object.species_symbol
         buffer *= "\tbinding_parameter_dictionary[\"n_$(gene_symbol)_$(actor_symbol)\"] = 1.0\n"
-        buffer *= "\tbinding_parameter_dictionary[\"K_$(gene_symbol)_$(actor_symbol)\"] = 1.0\n"
+        buffer *= "\tbinding_parameter_dictionary[\"K_$(gene_symbol)_$(actor_symbol)\"] = 10.0\n"
       end
     end
   end

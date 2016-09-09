@@ -116,6 +116,11 @@ function generate_stoichiomteric_matrix_buffer(problem_object::ProblemObject)
   # list of species -
   list_of_species = problem_object.list_of_species
 
+  # how many mRNA and protein species do we have?
+  number_of_genes = number_of_species_of_type(list_of_species,:gene)
+  number_of_mRNA = number_of_species_of_type(list_of_species,:mrna)
+  number_of_proteins = number_of_species_of_type(list_of_species,:protein)
+
   # initialize the buffer -
   buffer = ""
 
@@ -127,22 +132,30 @@ function generate_stoichiomteric_matrix_buffer(problem_object::ProblemObject)
     species_object_row = list_of_species[row_species_index]
     species_type_row = species_object_row.species_type
 
-    for col_species_index = 1:number_of_species
+    if (species_type_row == :gene)
 
-      # grab the col species type?
-      species_object_col = list_of_species[col_species_index]
-      species_type_col = species_object_col.species_type
+      for txtl_index = 1:(number_of_mRNA+number_of_proteins)
+        buffer *= " 0.0 "
+      end
 
-      if (species_type_row == species_type_col && row_species_index == col_species_index)
+      # add a new line -
+      buffer *= "\n"
+    end
+  end
+
+  for row_species_index = 1:(number_of_species-number_of_genes)
+
+    for txtl_index = 1:(number_of_mRNA+number_of_proteins)
+      if (row_species_index == txtl_index)
         buffer *= " 1.0 "
       else
         buffer *= " 0.0 "
       end
     end
 
-    # add a newline -
-    buffer *="\n"
+    buffer *= "\n"
   end
+
 
   # build the component -
   filename = "Network.dat"

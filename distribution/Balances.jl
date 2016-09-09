@@ -1,6 +1,8 @@
 # includes -
 include("Kinetics.jl")
 include("Control.jl")
+include("Inputs.jl")
+using Debug
 
 # ----------------------------------------------------------------------------------- #
 # Copyright (c) 2016 Varnerlab
@@ -56,7 +58,8 @@ function Balances(t,x,data_dictionary)
   translation_rate_array = calculate_translation_rates(t,x,data_dictionary)
   mRNA_degradation_rate_array = calculate_mRNA_degradation_rates(t,x,data_dictionary)
   protein_degradation_rate_array = calculate_protein_degradation_rates(t,x,data_dictionary)
-  background_transcription_rate_array = calculate_background_transcription_rates(t,x,data_dictionary)
+  background_transcription_rate_array = calculate_background_transcription_rates(t,x,transcription_rate_array,data_dictionary)
+  input_array = calculate_input_array(t,x,data_dictionary)
 
   # Call my control function -
   control_array = Control(t,x,data_dictionary)
@@ -69,7 +72,7 @@ function Balances(t,x,data_dictionary)
   degradation_rate_array = [mRNA_degradation_rate_array ; protein_degradation_rate_array]
 
   # Evaluate the balance equations -
-  dxdt_array = stoichiometric_matrix*txtl_rate_array+degradation_matrix*degradation_rate_array+mugmax*dilution_matrix*x+background_transcription_rate_array
+  dxdt_array = stoichiometric_matrix*txtl_rate_array+degradation_matrix*degradation_rate_array+mugmax*dilution_matrix*x+background_transcription_rate_array+input_array
 
   # return -
   return dxdt_array

@@ -23,6 +23,14 @@
 # ----------------------------------------------------------------------------------- #
 function calculate_input_array(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 
-	# return - 
-	return zeros(length(x))
+	u = zeros(length(x))
+
+	if (t>1.0)
+
+		u[3] = 0.1
+
+	end
+
+	# return -
+	return u
 end
