@@ -96,7 +96,6 @@ function generate_degradation_matrix_buffer(problem_object::ProblemObject)
       else
         buffer *= " 0.0 "
       end
-
     end
 
     buffer *= "\n"
@@ -153,6 +152,65 @@ function generate_stoichiomteric_matrix_buffer(problem_object::ProblemObject)
 
   # return -
   return (program_component)
+end
+
+function extract_species_of_type(list_of_species::Array{SpeciesObject},species_type::Symbol)
+
+  # initialize -
+  local_list_of_species = SpeciesObject[]
+  for species_object in list_of_species
+
+    local_species_type = species_object.species_type
+    if (species_type == local_species_type)
+      push!(local_list_of_species,species_object)
+    end
+  end
+
+  return local_list_of_species
+end
+
+function is_species_a_target_in_connection_list(list_of_connections::Array{ConnectionObject},target_species::SpeciesObject,connection_type::Symbol)
+
+  target_connection_list = ConnectionObject[]
+  for connection_object in list_of_connections
+
+    # get targets -
+    local_target_set = connection_object.connection_target_set
+    local_connection_type = connection_object.connection_type
+    if (local_connection_type == connection_type && does_set_contain_species(local_target_set,target_species) == true)
+
+      push!(target_connection_list,connection_object)
+    end
+  end
+
+  return target_connection_list
+end
+
+
+function does_set_contain_species(species_set::Array{SpeciesObject},species_object::SpeciesObject)
+
+  # initilize -
+  does_set_contains_species = false
+  for local_species_object in species_set
+
+    # get type and name -
+    local_species_type = local_species_object.species_type
+    local_species_symbol = local_species_object.species_symbol
+
+    # get the test symbol and type -
+    test_species_type = species_object.species_type
+    test_species_symbol = species_object.species_symbol
+
+    if (local_species_type == test_species_type && test_species_symbol == local_species_symbol)
+
+      @show (local_species_type,local_species_symbol,test_species_type,test_species_symbol)
+
+      does_set_contains_species = true
+      return does_set_contains_species
+    end
+  end
+
+  return does_set_contains_species
 end
 
 function generate_dilution_matrix_buffer(problem_object::ProblemObject)

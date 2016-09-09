@@ -38,13 +38,13 @@ function build_connection_list(statement_vector::Array{VGRNSentence})
     list_of_actor_symbols = AbstractString[]
     actor_string = vgrn_sentence.sentence_actor_clause
     recursive_species_parser!(reverse(collect(actor_string)),list_of_actor_symbols)
-    actor_set::Set{SpeciesObject} = species_object_factory(list_of_actor_symbols)
+    actor_set::Array{SpeciesObject} = species_object_factory(list_of_actor_symbols)
 
     # Who are my targets?
     list_of_target_symbols = AbstractString[]
     target_string = vgrn_sentence.sentence_target_clause
     recursive_species_parser!(reverse(collect(target_string)),list_of_target_symbols)
-    target_set::Set{SpeciesObject} = species_object_factory(list_of_target_symbols)
+    target_set::Array{SpeciesObject} = species_object_factory(list_of_target_symbols)
 
     # set them on the connection object -
     connection_object.connection_actor_set = actor_set
@@ -68,7 +68,7 @@ end
 
 function species_object_factory(list_of_symbols::Array{AbstractString})
 
-  species_set = Set{SpeciesObject}()
+  species_set = SpeciesObject[]
   for symbol_text in list_of_symbols
     push!(species_set,SpeciesObject(:gene,symbol_text))
   end

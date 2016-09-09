@@ -31,8 +31,8 @@ end
 
 type ConnectionObject
 
-  connection_actor_set::Set{SpeciesObject}
-  connection_target_set::Set{SpeciesObject}
+  connection_actor_set::Array{SpeciesObject}
+  connection_target_set::Array{SpeciesObject}
   connection_type::Symbol
 
   function ConnectionObject()
