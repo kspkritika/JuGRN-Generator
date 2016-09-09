@@ -6,8 +6,8 @@ using Debug
   problem_object::ProblemObject = ProblemObject()
 
   # Load the JSON configuration file -
-  # config_dict = JSON.parsefile("../config/Configuration.json")
-  # problem_object.configuration_dictionary = config_dict
+  config_dict = JSON.parsefile("./config/Configuration.json")
+  problem_object.configuration_dictionary = config_dict
 
   # construct the array of species -
   species_array::Array{SpeciesObject} = build_species_list(statement_vector)

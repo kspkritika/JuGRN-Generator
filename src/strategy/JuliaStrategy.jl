@@ -1,3 +1,21 @@
+function build_function_header_buffer(comment_dictionary)
+
+  # initialize -
+  buffer = ""
+
+  # get some data from the comment_dictionary -
+  function_name = comment_dictionary["function_name"]
+  function_description = comment_dictionary["function_description"]
+
+  buffer*= "# ----------------------------------------------------------------------------------- #\n"
+  buffer*= "# Function: $(function_name)\n"
+  buffer*= "# Description: $(function_description)\n"
+  buffer*= "# ----------------------------------------------------------------------------------- #\n"
+
+  # return the buffer -
+  return buffer
+end
+
 function build_copyright_header_buffer(problem_object::ProblemObject)
 
   # What is the current year?
@@ -638,16 +656,22 @@ function build_kinetics_buffer(problem_object::ProblemObject)
   return (program_component)
 end
 
-function build_inputs_buffer(problem_object::ProblemObject)
+@debug function build_inputs_buffer(problem_object::ProblemObject)
 
   filename = "Inputs.jl"
 
   # build the header -
-  header_buffer = build_copyright_header_buffer(problem_object)
+  license_header_buffer = build_copyright_header_buffer(problem_object)
+
+  # get the comment buffer -
+  comment_header_dictionary = problem_object.configuration_dictionary["function_comment_dictionary"]["input_function"]
+  function_comment_buffer = build_function_header_buffer(comment_header_dictionary)
 
   # initialize the buffer -
   buffer = ""
-  buffer *= header_buffer
+  buffer *= license_header_buffer
+  buffer *= "#\n"
+  buffer *= function_comment_buffer
   buffer *= "function calculate_input_array(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})\n"
   buffer *= "\n"
   buffer *= "\t# return - \n"

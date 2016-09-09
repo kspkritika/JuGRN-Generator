@@ -21,16 +21,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 # ----------------------------------------------------------------------------------- #
+#
+# ----------------------------------------------------------------------------------- #
+# Function: calculate_input_array
+# Description: Calculate the simulation inputs at time t
+# ----------------------------------------------------------------------------------- #
 function calculate_input_array(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 
-	u = zeros(length(x))
-
-	if (t>1.0)
-
-		u[3] = 0.1
-
-	end
-
-	# return -
-	return u
+	# return - 
+	return zeros(length(x))
 end
