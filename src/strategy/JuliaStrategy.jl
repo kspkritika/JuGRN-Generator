@@ -6,11 +6,36 @@ function build_function_header_buffer(comment_dictionary)
   # get some data from the comment_dictionary -
   function_name = comment_dictionary["function_name"]
   function_description = comment_dictionary["function_description"]
+  input_arg_array = comment_dictionary["input_args"]
+  output_arg_array = comment_dictionary["output_args"]
 
-  buffer*= "# ----------------------------------------------------------------------------------- #\n"
-  buffer*= "# Function: $(function_name)\n"
-  buffer*= "# Description: $(function_description)\n"
-  buffer*= "# ----------------------------------------------------------------------------------- #\n"
+  buffer *= "# ----------------------------------------------------------------------------------- #\n"
+  buffer *= "# Function: $(function_name)\n"
+  buffer *= "# Description: $(function_description)\n"
+  buffer *= "# Generated on: $(now())\n"
+  buffer *= "#\n"
+  buffer *= "# Input arguments:\n"
+
+  for argument_dictionary in input_arg_array
+
+    arg_symbol = argument_dictionary["symbol"]
+    arg_description = argument_dictionary["description"]
+
+    # write the buffer -
+    buffer *= "# $(arg_symbol) => $(arg_description) \n"
+  end
+
+  buffer *= "#\n"
+  buffer *= "# Output arguments:\n"
+  for argument_dictionary in output_arg_array
+
+    arg_symbol = argument_dictionary["symbol"]
+    arg_description = argument_dictionary["description"]
+
+    # write the buffer -
+    buffer *= "# $(arg_symbol) => $(arg_description) \n"
+  end
+  buffer *= "# ----------------------------------------------------------------------------------- #\n"
 
   # return the buffer -
   return buffer
@@ -25,7 +50,7 @@ function build_copyright_header_buffer(problem_object::ProblemObject)
   buffer = ""
   buffer*= "# ----------------------------------------------------------------------------------- #\n"
   buffer*= "# Copyright (c) $(current_year) Varnerlab\n"
-  buffer*= "# Robert Frederick School of Chemical and Biomolecular Engineering\n"
+  buffer*= "# Robert Frederick Smith School of Chemical and Biomolecular Engineering\n"
   buffer*= "# Cornell University, Ithaca NY 14850\n"
   buffer*= "#\n"
   buffer*= "# Permission is hereby granted, free of charge, to any person obtaining a copy\n"
@@ -59,6 +84,10 @@ end
   # build the header -
   header_buffer = build_copyright_header_buffer(problem_object)
 
+  # get the comment buffer -
+  comment_header_dictionary = problem_object.configuration_dictionary["function_comment_dictionary"]["control_function"]
+  function_comment_buffer = build_function_header_buffer(comment_header_dictionary)
+
   # extract list of genes -
   list_of_species = problem_object.list_of_species
   list_of_genes = extract_species_of_type(list_of_species,:gene)
@@ -69,6 +98,8 @@ end
   # initialize the buffer -
   buffer = ""
   buffer *= header_buffer
+  buffer *= "#\n"
+  buffer *= function_comment_buffer
   buffer *= "function Control(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})\n"
   buffer *= "\n"
   buffer *= "\t# initialize the control - \n"
@@ -251,12 +282,18 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
   # build the header -
   header_buffer = build_copyright_header_buffer(problem_object)
 
+  # get the comment buffer -
+  comment_header_dictionary = problem_object.configuration_dictionary["function_comment_dictionary"]["data_dictionary_function"]
+  function_comment_buffer = build_function_header_buffer(comment_header_dictionary)
+
   # get list of species from the po -
   list_of_species::Array{SpeciesObject} = problem_object.list_of_species
 
   # initialize the buffer -
   buffer = ""
   buffer *= header_buffer
+  buffer *= "#\n"
+  buffer *= function_comment_buffer
   buffer *= "function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::Float64)\n"
   buffer *= "\n"
   buffer *= "\t# stoichiometric_matrix and dilution_matrix - \n"
@@ -414,6 +451,8 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
   buffer *= "\t# =============================== DO NOT EDIT BELOW THIS LINE ============================== #\n"
   buffer *= "\tdata_dictionary = Dict{AbstractString,Any}()\n"
   buffer *= "\tdata_dictionary[\"initial_condition_array\"] = initial_condition_array\n"
+  buffer *= "\tdata_dictionary[\"average_transcript_length\"] = average_transcript_length\n"
+  buffer *= "\tdata_dictionary[\"average_protein_length\"] = average_protein_length\n"
   buffer *= "\tdata_dictionary[\"gene_coding_length_array\"] = gene_coding_length_array\n"
   buffer *= "\tdata_dictionary[\"mRNA_coding_length_array\"] = mRNA_coding_length_array\n"
   buffer *= "\tdata_dictionary[\"protein_coding_length_array\"] = protein_coding_length_array\n"
@@ -484,6 +523,9 @@ function build_kinetics_buffer(problem_object::ProblemObject)
   buffer *="\tKSAT = data_dictionary[\"saturation_constant_transcription\"]\n"
   buffer *="\tkcat_transcription = data_dictionary[\"kcat_transcription\"]\n"
   buffer *="\trnapII_concentration = data_dictionary[\"rnapII_concentration\"]\n"
+  buffer *="\taverage_transcript_length = data_dictionary[\"average_transcript_length\"]\n"
+  buffer *="\tgene_coding_length_array = data_dictionary[\"gene_coding_length_array\"]\n"
+
   buffer *="\n"
   buffer *="\t# Populate the transcription rate array - \n"
   counter = 1
@@ -495,7 +537,11 @@ function build_kinetics_buffer(problem_object::ProblemObject)
 
     # grab -
     if (species_type == :gene)
-      buffer *= "\ttranscription_rate_array[$(counter)] = kcat_transcription*(rnapII_concentration)*(($(species_symbol))/(KSAT+$(species_symbol)))\n"
+      buffer *= "\t# Gene: $(species_symbol)\n"
+      buffer *= "\tgene_length = gene_coding_length_array[$(index)]\n"
+      buffer *= "\tscale_factor = (average_transcript_length/gene_length)\n"
+      buffer *= "\ttranscription_rate_array[$(counter)] = scale_factor*kcat_transcription*(rnapII_concentration)*(($(species_symbol))/(KSAT+$(species_symbol)))\n"
+      buffer *= "\n"
       counter = counter + 1
     end
   end
@@ -538,6 +584,8 @@ function build_kinetics_buffer(problem_object::ProblemObject)
   buffer *="\tKSAT = data_dictionary[\"saturation_constant_translation\"]\n"
   buffer *="\tkcat_translation = data_dictionary[\"kcat_translation\"]\n"
   buffer *="\tribosome_concentration = data_dictionary[\"ribosome_concentration\"]\n"
+  buffer *="\taverage_protein_length = data_dictionary[\"average_protein_length\"]\n"
+  buffer *="\tprotein_coding_length_array = data_dictionary[\"protein_coding_length_array\"]\n"
   buffer *="\n"
   buffer *="\t# Populate the translation rate array - \n"
   counter = 1
@@ -549,7 +597,11 @@ function build_kinetics_buffer(problem_object::ProblemObject)
 
     # grab -
     if (species_type == :mrna)
-      buffer *= "\ttranslation_rate_array[$(counter)] = kcat_translation*(ribosome_concentration)*(($(species_symbol))/(KSAT+$(species_symbol)))\n"
+      buffer *= "\t# Transcript: $(species_symbol)\n"
+      buffer *= "\tprotein_length = protein_coding_length_array[$(index)]\n"
+      buffer *= "\tscale_factor = (average_protein_length/protein_length)\n"
+      buffer *= "\ttranslation_rate_array[$(counter)] = scale_factor*kcat_translation*(ribosome_concentration)*(($(species_symbol))/(KSAT+$(species_symbol)))\n"
+      buffer *= "\n"
       counter = counter + 1
     end
   end

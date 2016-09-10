@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------------------- #
 # Copyright (c) 2016 Varnerlab
-# Robert Frederick Smith School of Chemical and Biomolecular Engineering
+# Robert Frederick School of Chemical and Biomolecular Engineering
 # Cornell University, Ithaca NY 14850
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -32,20 +32,10 @@ function calculate_transcription_rates(t::Float64,x::Array{Float64,1},data_dicti
 	KSAT = data_dictionary["saturation_constant_transcription"]
 	kcat_transcription = data_dictionary["kcat_transcription"]
 	rnapII_concentration = data_dictionary["rnapII_concentration"]
-	average_transcript_length = data_dictionary["average_transcript_length"]
-	gene_coding_length_array = data_dictionary["gene_coding_length_array"]
 
 	# Populate the transcription rate array - 
-	# Gene: gene_1
-	gene_length = gene_coding_length_array[1]
-	scale_factor = (average_transcript_length/gene_length)
-	transcription_rate_array[1] = scale_factor*kcat_transcription*(rnapII_concentration)*((gene_1)/(KSAT+gene_1))
-
-	# Gene: gene_2
-	gene_length = gene_coding_length_array[2]
-	scale_factor = (average_transcript_length/gene_length)
-	transcription_rate_array[2] = scale_factor*kcat_transcription*(rnapII_concentration)*((gene_2)/(KSAT+gene_2))
-
+	transcription_rate_array[1] = kcat_transcription*(rnapII_concentration)*((gene_1)/(KSAT+gene_1))
+	transcription_rate_array[2] = kcat_transcription*(rnapII_concentration)*((gene_2)/(KSAT+gene_2))
 
 	# return transcription_rate_array - 
 	return transcription_rate_array
@@ -67,20 +57,10 @@ function calculate_translation_rates(t::Float64,x::Array{Float64,1},data_diction
 	KSAT = data_dictionary["saturation_constant_translation"]
 	kcat_translation = data_dictionary["kcat_translation"]
 	ribosome_concentration = data_dictionary["ribosome_concentration"]
-	average_protein_length = data_dictionary["average_protein_length"]
-	protein_coding_length_array = data_dictionary["protein_coding_length_array"]
 
 	# Populate the translation rate array - 
-	# Transcript: mRNA_gene_1
-	protein_length = protein_coding_length_array[3]
-	scale_factor = (average_protein_length/protein_length)
-	translation_rate_array[1] = scale_factor*kcat_translation*(ribosome_concentration)*((mRNA_gene_1)/(KSAT+mRNA_gene_1))
-
-	# Transcript: mRNA_gene_2
-	protein_length = protein_coding_length_array[4]
-	scale_factor = (average_protein_length/protein_length)
-	translation_rate_array[2] = scale_factor*kcat_translation*(ribosome_concentration)*((mRNA_gene_2)/(KSAT+mRNA_gene_2))
-
+	translation_rate_array[1] = kcat_translation*(ribosome_concentration)*((mRNA_gene_1)/(KSAT+mRNA_gene_1))
+	translation_rate_array[2] = kcat_translation*(ribosome_concentration)*((mRNA_gene_2)/(KSAT+mRNA_gene_2))
 
 	# return translation array - 
 	return translation_rate_array

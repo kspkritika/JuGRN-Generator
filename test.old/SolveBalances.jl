@@ -1,8 +1,11 @@
+include("Balances.jl")
+using ODE
+
 # ----------------------------------------------------------------------------------- #
 # Copyright (c) 2016 Varnerlab
-# Robert Frederick Smith School of Chemical and Biomolecular Engineering
-# Cornell University, Ithaca NY 14850
-#
+# School of Chemical Engineering Purdue University
+# W. Lafayette IN 46907 USA
+
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
 # in the Software without restriction, including without limitation the rights
@@ -23,20 +26,45 @@
 # ----------------------------------------------------------------------------------- #
 #
 # ----------------------------------------------------------------------------------- #
-# Function: calculate_input_array
-# Description: Calculate the simulation inputs at time t
-# Generated on: 2016-09-10T14:31:32
+# SolveBalances: Solves model equations from TSTART to TSTOP given parameters in data_dictionary.
+# Type: GRN-JULIA
+# Version: 1.0
 #
 # Input arguments:
-# t::Float64 => Current time value (scalar) 
-# x::Array{Float64,1} => State array (number_of_species x 1) 
-# data_dictionary::Dict{AbstractString,Any} => Dictionary holding model parameters 
+# TSTART  - Time start
+# TSTOP  - Time stop
+# Ts - Time step
+# data_dictionary  - Data dictionary instance (holds model parameters)
 #
-# Output arguments:
-# u::Array{Float64,1} => Input array (number_of_species x 1) at time t 
+# Return arguments:
+# TSIM - Simulation time vector
+# X - Simulation state array (NTIME x NSPECIES)
 # ----------------------------------------------------------------------------------- #
-function calculate_input_array(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
+function SolveBalances(TSTART,TSTOP,Ts,data_dictionary)
 
-	# return - 
-	return zeros(length(x))
+  # Get required stuff from DataFile struct -
+  TSIM = collect(TSTART:Ts:TSTOP);
+  initial_condition_vector = data_dictionary["initial_condition_array"];
+
+  # Call the ODE solver -
+  fbalances(t,y) = Balances(t,y,data_dictionary);
+  (t,y) = ode23s(fbalances,initial_condition_vector,TSIM;points=:specified);
+
+  # Map -
+  number_of_timesteps = length(t)
+  number_of_states = length(initial_condition_vector)
+  X = zeros(number_of_timesteps,number_of_states)
+  for state_index = 1:number_of_states
+    tmp = map(y->y[state_index],y)
+    for time_index = 1:number_of_timesteps
+      X[time_index,state_index] = tmp[time_index]
+    end
+  end
+
+  # Check for negatives -
+  idx_n = find(X.<0)
+  X[idx_n] = 0.0
+
+  # return time and state -
+  return (t,X);
 end

@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------------------- #
 # Copyright (c) 2016 Varnerlab
-# Robert Frederick Smith School of Chemical and Biomolecular Engineering
+# Robert Frederick School of Chemical and Biomolecular Engineering
 # Cornell University, Ithaca NY 14850
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -25,18 +25,17 @@
 # ----------------------------------------------------------------------------------- #
 # Function: calculate_input_array
 # Description: Calculate the simulation inputs at time t
-# Generated on: 2016-09-10T14:31:32
-#
-# Input arguments:
-# t::Float64 => Current time value (scalar) 
-# x::Array{Float64,1} => State array (number_of_species x 1) 
-# data_dictionary::Dict{AbstractString,Any} => Dictionary holding model parameters 
-#
-# Output arguments:
-# u::Array{Float64,1} => Input array (number_of_species x 1) at time t 
 # ----------------------------------------------------------------------------------- #
 function calculate_input_array(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 
-	# return - 
-	return zeros(length(x))
+	u = zeros(length(x))
+
+	if (t>10)
+		Td = 10.0
+		SF = 0.05
+		u[3] = SF*(1/exp(1))*exp(-(t-Td)/Td)
+	end
+
+	# return -
+	return u
 end

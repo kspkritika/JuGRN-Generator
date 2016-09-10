@@ -1,6 +1,6 @@
 # ----------------------------------------------------------------------------------- #
 # Copyright (c) 2016 Varnerlab
-# Robert Frederick Smith School of Chemical and Biomolecular Engineering
+# Robert Frederick School of Chemical and Biomolecular Engineering
 # Cornell University, Ithaca NY 14850
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,40 +21,26 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 # ----------------------------------------------------------------------------------- #
-#
-# ----------------------------------------------------------------------------------- #
-# Function: DataDictionary
-# Description: Holds simulation and model parameters as key => value pairs in a Julia Dict()
-# Generated on: 2016-09-10T14:31:32
-#
-# Input arguments:
-# time_start::Float64 => Simulation start time value (scalar) 
-# time_stop::Float64 => Simulation stop time value (scalar) 
-# time_step::Float64 => Simulation time step (scalar) 
-#
-# Output arguments:
-# data_dictionary::Dict{AbstractString,Any} => Dictionary holding model and simulation parameters as key => value pairs 
-# ----------------------------------------------------------------------------------- #
 function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::Float64)
 
-	# stoichiometric_matrix and dilution_matrix - 
+	# stoichiometric_matrix and dilution_matrix -
 	stoichiometric_matrix = readdlm("./Network.dat")
 	dilution_matrix = readdlm("./Dilution.dat")
 	degradation_matrix = readdlm("./Degradation.dat")
 
-	# array of gene lengths - 
+	# array of gene lengths -
 	gene_coding_length_array = [
 		15000	;	# 1	gene_1
 		15000	;	# 2	gene_2
 	]
 
-	# array of mRNA coding lengths - 
+	# array of mRNA coding lengths -
 	mRNA_coding_length_array = [
 		gene_coding_length_array[1]	;	# 3	1	mRNA_gene_1
 		gene_coding_length_array[2]	;	# 4	2	mRNA_gene_2
 	]
 
-	# array of mRNA coding lengths - 
+	# array of mRNA coding lengths -
 	protein_coding_length_array = [
 		round((0.33)*mRNA_coding_length_array[1])	;	# 5	1	protein_gene_1
 		round((0.33)*mRNA_coding_length_array[2])	;	# 6	2	protein_gene_2
@@ -83,34 +69,34 @@ function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::F
 	# ------------------------------------------------------------------------------------------#
 	# Calculate the volume (convert to L)
 	V = ((1-fraction_nucleus)*(1/6)*(3.14159)*(cell_diameter)^3)*(1e-15)
-	
+
 	# Calculate the rnapII_concentration and ribosome_concentration
 	rnapII_concentration = number_of_rnapII*(1/av_number)*(1/V)*1e9                   # nM
 	ribosome_concentration = number_of_ribosome*(1/av_number)*(1/V)*1e9               # nM
-	
+
 	# degrdation rate constants -
 	degradation_constant_mRNA = -(1/mRNA_half_life_TF)*log(0.5)                       # hr^-1
 	degradation_constant_protein = -(1/protein_half_life)*log(0.5)                    # hr^-1
-	
+
 	# kcats for transcription and translation -
 	kcat_transcription = max_transcription_rate*(3600/average_transcript_length)      # hr^-1
 	kcat_translation = max_translation_rate*(3600/average_protein_length)             # hr^-1
-	
+
 	# Maximum specific growth rate -
 	maximum_specific_growth_rate = (1/doubling_time_cell)*log(2)                      # hr^-1
-	
+
 	# What is the average gene concentration -
 	avg_gene_concentration = avg_gene_number*(1/av_number)*(1/V)*1e9                  # nM
-	
+
 	# How fast do my cells die?
 	death_rate_constant = 0.2*maximum_specific_growth_rate                            # hr^-1
-	
+
 	# Saturation constants for translation and trascription -
 	saturation_transcription = 4600*(1/av_number)*(1/V)*1e9                           # nM
 	saturation_translation = 100000*(1/av_number)*(1/V)*1e9                           # nM
 	# -------------------------------------------------------------------------------------------#
 
-	# initial condition array - 
+	# initial condition array -
 	initial_condition_array = [
 		avg_gene_concentration	;	# 1	gene_1
 		avg_gene_concentration	;	# 2	gene_2
@@ -123,36 +109,34 @@ function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::F
 	binding_parameter_dictionary = Dict{AbstractString,Float64}()
 	binding_parameter_dictionary["n_gene_1_gene_1"] = 1.0
 	binding_parameter_dictionary["K_gene_1_gene_1"] = 10.0
-	binding_parameter_dictionary["n_gene_1_gene_2"] = 1.0
-	binding_parameter_dictionary["K_gene_1_gene_2"] = 10.0
-	binding_parameter_dictionary["n_gene_2_gene_1"] = 1.0
-	binding_parameter_dictionary["K_gene_2_gene_1"] = 10.0
+	binding_parameter_dictionary["n_gene_1_gene_2"] = 8.0
+	binding_parameter_dictionary["K_gene_1_gene_2"] = 1.5
+	binding_parameter_dictionary["n_gene_2_gene_1"] = 2.0
+	binding_parameter_dictionary["K_gene_2_gene_1"] = 100.0
 
-	# Alias the control function parameters - 
+	# Alias the control function parameters -
 	control_parameter_dictionary = Dict{AbstractString,Float64}()
 	control_parameter_dictionary["W_gene_1_gene_1"] = 1.0
-	control_parameter_dictionary["W_gene_1_gene_2"] = 1.0
-	control_parameter_dictionary["W_gene_2_gene_1"] = 1.0
+	control_parameter_dictionary["W_gene_1_gene_2"] = 10.0
+	control_parameter_dictionary["W_gene_2_gene_1"] = 0.1
 
 	# =============================== DO NOT EDIT BELOW THIS LINE ============================== #
 	data_dictionary = Dict{AbstractString,Any}()
 	data_dictionary["initial_condition_array"] = initial_condition_array
-	data_dictionary["average_transcript_length"] = average_transcript_length
-	data_dictionary["average_protein_length"] = average_protein_length
 	data_dictionary["gene_coding_length_array"] = gene_coding_length_array
 	data_dictionary["mRNA_coding_length_array"] = mRNA_coding_length_array
 	data_dictionary["protein_coding_length_array"] = protein_coding_length_array
-	data_dictionary["rnapII_concentration"] = rnapII_concentration  # muM 
-	data_dictionary["ribosome_concentration"] = ribosome_concentration # muM 
-	data_dictionary["degradation_constant_mRNA"] = degradation_constant_mRNA  # hr^-1 
-	data_dictionary["degradation_constant_protein"] = degradation_constant_protein  # hr^-1 
-	data_dictionary["kcat_transcription"] = kcat_transcription  # hr^-1 
-	data_dictionary["kcat_translation"] = kcat_translation  # hr^-1 
-	data_dictionary["maximum_specific_growth_rate"] = maximum_specific_growth_rate  # hr^-1 
-	data_dictionary["death_rate_constant"] = death_rate_constant 
-	data_dictionary["avg_gene_concentration"] = avg_gene_concentration 
-	data_dictionary["saturation_constant_transcription"] = saturation_transcription 
-	data_dictionary["saturation_constant_translation"] = saturation_translation 
+	data_dictionary["rnapII_concentration"] = rnapII_concentration  # muM
+	data_dictionary["ribosome_concentration"] = ribosome_concentration # muM
+	data_dictionary["degradation_constant_mRNA"] = degradation_constant_mRNA  # hr^-1
+	data_dictionary["degradation_constant_protein"] = degradation_constant_protein  # hr^-1
+	data_dictionary["kcat_transcription"] = kcat_transcription  # hr^-1
+	data_dictionary["kcat_translation"] = kcat_translation  # hr^-1
+	data_dictionary["maximum_specific_growth_rate"] = maximum_specific_growth_rate  # hr^-1
+	data_dictionary["death_rate_constant"] = death_rate_constant
+	data_dictionary["avg_gene_concentration"] = avg_gene_concentration
+	data_dictionary["saturation_constant_transcription"] = saturation_transcription
+	data_dictionary["saturation_constant_translation"] = saturation_translation
 
 	data_dictionary["stoichiometric_matrix"] = stoichiometric_matrix
 	data_dictionary["dilution_matrix"] = dilution_matrix
