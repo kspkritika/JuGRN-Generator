@@ -28,6 +28,14 @@
 # ----------------------------------------------------------------------------------- #
 function calculate_input_array(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 
-	# return - 
-	return zeros(length(x))
+	u = zeros(length(x))
+
+	if (t>10)
+		Td = 10.0
+		SF = 0.05
+		u[3] = SF*(1/exp(1))*exp(-(t-Td)/Td)
+	end
+
+	# return -
+	return u
 end
