@@ -25,7 +25,7 @@
 # ----------------------------------------------------------------------------------- #
 # Function: Control
 # Description: Calculate the transcriptional control array at time t
-# Generated on: 2016-09-10T14:31:32
+# Generated on: 2016-09-10T14:59:22
 #
 # Input arguments:
 # t::Float64 => Current time value (scalar) 

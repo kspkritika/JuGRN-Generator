@@ -500,6 +500,11 @@ function build_kinetics_buffer(problem_object::ProblemObject)
   # initialize the buffer -
   buffer = ""
   buffer *= header_buffer
+
+  comment_header_dictionary = problem_object.configuration_dictionary["function_comment_dictionary"]["calculate_transcription_rates"]
+  function_comment_buffer = build_function_header_buffer(comment_header_dictionary)
+  buffer *= "#\n"
+  buffer *= function_comment_buffer
   buffer *= "function calculate_transcription_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})\n"
   buffer *= "\n"
 
@@ -555,12 +560,19 @@ function build_kinetics_buffer(problem_object::ProblemObject)
 
 
   # calculate_background_transcription_rates -
+  comment_header_dictionary = problem_object.configuration_dictionary["function_comment_dictionary"]["calculate_background_transcription_rates"]
+  function_comment_buffer = build_function_header_buffer(comment_header_dictionary)
+  buffer *= function_comment_buffer
   buffer *= "function calculate_background_transcription_rates(t::Float64,x::Array{Float64,1},transcription_rate_array::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})\n"
   buffer *= "\treturn zeros(length(x))\n"
   buffer *= "end\n"
   buffer *= "\n"
   buffer *= "\n"
 
+
+  comment_header_dictionary = problem_object.configuration_dictionary["function_comment_dictionary"]["calculate_translation_rates"]
+  function_comment_buffer = build_function_header_buffer(comment_header_dictionary)
+  buffer *= function_comment_buffer
   buffer *= "function calculate_translation_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})\n"
   buffer *= "\n"
 
@@ -614,6 +626,9 @@ function build_kinetics_buffer(problem_object::ProblemObject)
 
 
   # calculate_mRNA_degradation_rates -
+  comment_header_dictionary = problem_object.configuration_dictionary["function_comment_dictionary"]["calculate_mRNA_degradation_rates"]
+  function_comment_buffer = build_function_header_buffer(comment_header_dictionary)
+  buffer *= function_comment_buffer
   buffer *= "function calculate_mRNA_degradation_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})\n"
   buffer *= "\n"
 
@@ -657,6 +672,9 @@ function build_kinetics_buffer(problem_object::ProblemObject)
   buffer *= "\n"
 
   # calculate_protein_degradation_rates
+  comment_header_dictionary = problem_object.configuration_dictionary["function_comment_dictionary"]["calculate_protein_degradation_rates"]
+  function_comment_buffer = build_function_header_buffer(comment_header_dictionary)
+  buffer *= function_comment_buffer
   buffer *= "function calculate_protein_degradation_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})\n"
   buffer *= "\n"
   buffer *="\t# Alias the species - \n"

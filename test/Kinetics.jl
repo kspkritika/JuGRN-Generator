@@ -21,6 +21,20 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 # ----------------------------------------------------------------------------------- #
+#
+# ----------------------------------------------------------------------------------- #
+# Function: calculate_transcription_rates
+# Description: Calculate the transcriptional rate array at time t
+# Generated on: 2016-09-10T14:59:22
+#
+# Input arguments:
+# t::Float64 => Current time value (scalar) 
+# x::Array{Float64,1} => State array (number_of_species x 1) 
+# data_dictionary::Dict{AbstractString,Any} => Dictionary holding model parameters 
+#
+# Output arguments:
+# transcription_rate_array::Array{Float64,1} => Transcriptional rate array (number_of_genes x 1) at time t 
+# ----------------------------------------------------------------------------------- #
 function calculate_transcription_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 
 	# Alias the species - 
@@ -51,11 +65,37 @@ function calculate_transcription_rates(t::Float64,x::Array{Float64,1},data_dicti
 	return transcription_rate_array
 end
 
+# ----------------------------------------------------------------------------------- #
+# Function: calculate_background_transcription_rates
+# Description: Calculate the leak transcriptional rate array at time t
+# Generated on: 2016-09-10T14:59:22
+#
+# Input arguments:
+# t::Float64 => Current time value (scalar) 
+# x::Array{Float64,1} => State array (number_of_species x 1) 
+# data_dictionary::Dict{AbstractString,Any} => Dictionary holding model parameters 
+#
+# Output arguments:
+# background_transcription_rate_array::Array{Float64,1} => Background transcriptional rate array (number_of_genes x 1) at time t 
+# ----------------------------------------------------------------------------------- #
 function calculate_background_transcription_rates(t::Float64,x::Array{Float64,1},transcription_rate_array::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 	return zeros(length(x))
 end
 
 
+# ----------------------------------------------------------------------------------- #
+# Function: calculate_translation_rates
+# Description: Calculate the translation rate array at time t
+# Generated on: 2016-09-10T14:59:22
+#
+# Input arguments:
+# t::Float64 => Current time value (scalar) 
+# x::Array{Float64,1} => State array (number_of_species x 1) 
+# data_dictionary::Dict{AbstractString,Any} => Dictionary holding model parameters 
+#
+# Output arguments:
+# translation_rate_array::Array{Float64,1} => Translation rate array (number_of_genes x 1) at time t 
+# ----------------------------------------------------------------------------------- #
 function calculate_translation_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 
 	# Alias the species - 
@@ -86,6 +126,19 @@ function calculate_translation_rates(t::Float64,x::Array{Float64,1},data_diction
 	return translation_rate_array
 end
 
+# ----------------------------------------------------------------------------------- #
+# Function: calculate_mRNA_degradation_rates
+# Description: Calculate the mRNA degradation rate array at time t
+# Generated on: 2016-09-10T14:59:22
+#
+# Input arguments:
+# t::Float64 => Current time value (scalar) 
+# x::Array{Float64,1} => State array (number_of_species x 1) 
+# data_dictionary::Dict{AbstractString,Any} => Dictionary holding model parameters 
+#
+# Output arguments:
+# mRNA_degradation_rate_array::Array{Float64,1} => mRNA degradation rate array (number_of_genes x 1) at time t 
+# ----------------------------------------------------------------------------------- #
 function calculate_mRNA_degradation_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 
 	# Alias the species - 
@@ -104,6 +157,19 @@ function calculate_mRNA_degradation_rates(t::Float64,x::Array{Float64,1},data_di
 	return degradation_rate_array
 end
 
+# ----------------------------------------------------------------------------------- #
+# Function: calculate_protein_degradation_rates
+# Description: Calculate the protein degradation rate array at time t
+# Generated on: 2016-09-10T14:59:22
+#
+# Input arguments:
+# t::Float64 => Current time value (scalar) 
+# x::Array{Float64,1} => State array (number_of_species x 1) 
+# data_dictionary::Dict{AbstractString,Any} => Dictionary holding model parameters 
+#
+# Output arguments:
+# protein_degradation_rate_array::Array{Float64,1} => protein degradation rate array (number_of_proteins x 1) at time t 
+# ----------------------------------------------------------------------------------- #
 function calculate_protein_degradation_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 
 	# Alias the species - 
