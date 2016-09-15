@@ -250,6 +250,7 @@ end
     if (isempty(inhibiting_connections) == true)
       buffer *= demoninator[1:end-1]
       buffer *= ")\n"
+      buffer *= "\n"
     else
       buffer *= demoninator
       demoninator = ""
@@ -457,6 +458,13 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
     end
   end
 
+  # parameter name mapping -
+  buffer *= "\n"
+  buffer *= "\t# Parameter name index array - \n"
+  name_parameter_mapping_buffer = generate_parameter_name_mapping(list_of_genes,list_of_connections::Array{ConnectionObject})
+  buffer *= name_parameter_mapping_buffer
+
+  # return block -
   buffer *= "\n"
   buffer *= "\t# =============================== DO NOT EDIT BELOW THIS LINE ============================== #\n"
   buffer *= "\tdata_dictionary = Dict{AbstractString,Any}()\n"
@@ -484,6 +492,7 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
   buffer *= "\n"
   buffer *= "\tdata_dictionary[\"binding_parameter_dictionary\"] = binding_parameter_dictionary\n"
   buffer *= "\tdata_dictionary[\"control_parameter_dictionary\"] = control_parameter_dictionary\n"
+  buffer *= "\tdata_dictionary[\"parameter_name_mapping_array\"] = parameter_name_mapping_array\n"
   buffer *= "\t# =============================== DO NOT EDIT ABOVE THIS LINE ============================== #\n"
   buffer *= "\treturn data_dictionary\n"
   buffer *= "end\n"
@@ -765,4 +774,104 @@ end
 
   # return -
   return (program_component)
+end
+
+function generate_parameter_name_mapping(list_of_genes::Array{SpeciesObject},list_of_connections::Array{ConnectionObject})
+
+  # iterate through the list of genes - add names to a string -
+  list_of_names = AbstractString[]
+
+  for (index,gene_object) in enumerate(list_of_genes)
+
+    # get gene symbol -
+    gene_symbol = gene_object.species_symbol
+
+    # connections -
+    activating_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:activate)
+    inhibiting_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:inhibit)
+
+    for connection_object in activating_connections
+      # actor -
+      actor_list = connection_object.connection_actor_set
+      for actor_object in actor_list
+        actor_symbol = actor_object.species_symbol
+
+        tmp_name = "n_$(gene_symbol)_$(actor_symbol)"
+        push!(list_of_names,tmp_name)
+
+        tmp_name = "K_$(gene_symbol)_$(actor_symbol)"
+        push!(list_of_names,tmp_name)
+
+      end
+    end
+
+    for connection_object in inhibiting_connections
+
+      # actor -
+      actor_list = connection_object.connection_actor_set
+      for actor_object in actor_list
+        actor_symbol = actor_object.species_symbol
+
+        tmp_name = "n_$(gene_symbol)_$(actor_symbol)"
+        push!(list_of_names,tmp_name)
+
+        tmp_name = "K_$(gene_symbol)_$(actor_symbol)"
+        push!(list_of_names,tmp_name)
+
+      end
+    end
+  end
+
+  for (index,gene_object) in enumerate(list_of_genes)
+
+    # get gene symbol -
+    gene_symbol = gene_object.species_symbol
+
+    # connections -
+    activating_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:activate)
+    inhibiting_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:inhibit)
+
+    # generate an RNAP term -
+    tmp_name = "W_$(gene_symbol)_RNAP"
+    push!(list_of_names,tmp_name)
+
+    # Activating connections -
+    for connection_object in activating_connections
+      # actor -
+      actor_list = connection_object.connection_actor_set
+      for actor_object in actor_list
+        actor_symbol = actor_object.species_symbol
+
+        tmp_name = "W_$(gene_symbol)_$(actor_symbol)"
+        push!(list_of_names,tmp_name)
+
+      end
+    end
+
+    # inhinitory connections -
+    for connection_object in inhibiting_connections
+      # actor -
+      actor_list = connection_object.connection_actor_set
+      for actor_object in actor_list
+        actor_symbol = actor_object.species_symbol
+
+        tmp_name = "W_$(gene_symbol)_$(actor_symbol)"
+        push!(list_of_names,tmp_name)
+
+      end
+    end
+  end
+
+
+  buffer = ""
+  buffer *= "\tparameter_name_mapping_array = [\n"
+  for (index,symbol) in enumerate(list_of_names)
+
+    buffer *= "\t\t\"$(symbol)\"\t;\t# $(index)\n"
+
+  end
+  buffer *= "\t]\n"
+
+
+  return buffer
 end

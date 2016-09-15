@@ -187,6 +187,8 @@ function is_species_a_target_in_connection_list(list_of_connections::Array{Conne
   target_connection_list = ConnectionObject[]
   for connection_object in list_of_connections
 
+    @show connection_object
+
     # get targets -
     local_target_set = connection_object.connection_target_set
     local_connection_type = connection_object.connection_type
