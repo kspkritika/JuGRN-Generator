@@ -162,6 +162,10 @@ end
     activating_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:activate)
     inhibiting_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:inhibit)
 
+    # get the RNAp binding symbol out -
+    buffer *="\tW_$(gene_symbol)_RNAP = control_parameter_dictionary[\"W_$(gene_symbol)_RNAP\"]\n"
+
+    # activating -
     for connection_object in activating_connections
       # actor -
       actor_list = connection_object.connection_actor_set
@@ -171,6 +175,7 @@ end
       end
     end
 
+    # inhibting -
     for connection_object in inhibiting_connections
       # actor -
       actor_list = connection_object.connection_actor_set
@@ -229,7 +234,7 @@ end
       end
     end
     buffer *= numerator[1:end-1]
-    buffer *= ")/(1+"
+    buffer *= ")/(1+W_$(gene_symbol)_RNAP+"
 
     demoninator = ""
     for connection_object in activating_connections
@@ -428,6 +433,10 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
     activating_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:activate)
     inhibiting_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:inhibit)
 
+    # generate an RNAP term -
+    buffer *= "\tcontrol_parameter_dictionary[\"W_$(gene_symbol)_RNAP\"] = 0.1\n"
+
+    # Activating connections -
     for connection_object in activating_connections
       # actor -
       actor_list = connection_object.connection_actor_set
@@ -437,6 +446,7 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
       end
     end
 
+    # inhinitory connections -
     for connection_object in inhibiting_connections
       # actor -
       actor_list = connection_object.connection_actor_set

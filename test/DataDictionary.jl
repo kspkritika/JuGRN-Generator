@@ -25,7 +25,7 @@
 # ----------------------------------------------------------------------------------- #
 # Function: DataDictionary
 # Description: Holds simulation and model parameters as key => value pairs in a Julia Dict()
-# Generated on: 2016-09-10T14:59:22
+# Generated on: 2016-09-14T18:48:43
 #
 # Input arguments:
 # time_start::Float64 => Simulation start time value (scalar) 
@@ -130,8 +130,10 @@ function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::F
 
 	# Alias the control function parameters - 
 	control_parameter_dictionary = Dict{AbstractString,Float64}()
+	control_parameter_dictionary["W_gene_1_RNAP"] = 0.1
 	control_parameter_dictionary["W_gene_1_gene_1"] = 1.0
 	control_parameter_dictionary["W_gene_1_gene_2"] = 1.0
+	control_parameter_dictionary["W_gene_2_RNAP"] = 0.1
 	control_parameter_dictionary["W_gene_2_gene_1"] = 1.0
 
 	# =============================== DO NOT EDIT BELOW THIS LINE ============================== #

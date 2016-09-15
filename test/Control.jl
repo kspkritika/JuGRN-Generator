@@ -25,7 +25,7 @@
 # ----------------------------------------------------------------------------------- #
 # Function: Control
 # Description: Calculate the transcriptional control array at time t
-# Generated on: 2016-09-10T14:59:22
+# Generated on: 2016-09-14T18:48:43
 #
 # Input arguments:
 # t::Float64 => Current time value (scalar) 
@@ -59,18 +59,20 @@ function Control(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractSt
 
 	# Alias the control function parameters - 
 	control_parameter_dictionary = data_dictionary["control_parameter_dictionary"]
+	W_gene_1_RNAP = control_parameter_dictionary["W_gene_1_RNAP"]
 	W_gene_1_gene_1 = control_parameter_dictionary["W_gene_1_gene_1"]
 	W_gene_1_gene_2 = control_parameter_dictionary["W_gene_1_gene_2"]
+	W_gene_2_RNAP = control_parameter_dictionary["W_gene_2_RNAP"]
 	W_gene_2_gene_1 = control_parameter_dictionary["W_gene_2_gene_1"]
 
 	# Control function for gene_1 - 
 	b_gene_1_gene_1 = ((protein_gene_1)^(n_gene_1_gene_1))/(K_gene_1_gene_1^(n_gene_1_gene_1)+protein_gene_1^(n_gene_1_gene_1))
 	b_gene_1_gene_2 = ((protein_gene_2)^(n_gene_1_gene_2))/(K_gene_1_gene_2^(n_gene_1_gene_2)+protein_gene_2^(n_gene_1_gene_2))
-	control_array[1] = (W_gene_1_gene_1*b_gene_1_gene_1)/(1+W_gene_1_gene_1*b_gene_1_gene_1+W_gene_1_gene_2*b_gene_1_gene_2)
+	control_array[1] = (W_gene_1_gene_1*b_gene_1_gene_1)/(1+W_gene_1_RNAP+W_gene_1_gene_1*b_gene_1_gene_1+W_gene_1_gene_2*b_gene_1_gene_2)
 
 	# Control function for gene_2 - 
 	b_gene_2_gene_1 = ((protein_gene_1)^(n_gene_2_gene_1))/(K_gene_2_gene_1^(n_gene_2_gene_1)+protein_gene_1^(n_gene_2_gene_1))
-	control_array[2] = (W_gene_2_gene_1*b_gene_2_gene_1)/(1+W_gene_2_gene_1*b_gene_2_gene_1)
+	control_array[2] = (W_gene_2_gene_1*b_gene_2_gene_1)/(1+W_gene_2_RNAP+W_gene_2_gene_1*b_gene_2_gene_1)
 
 	return control_array
 end

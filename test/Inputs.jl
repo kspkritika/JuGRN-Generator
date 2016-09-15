@@ -25,7 +25,7 @@
 # ----------------------------------------------------------------------------------- #
 # Function: calculate_input_array
 # Description: Calculate the simulation inputs at time t
-# Generated on: 2016-09-10T14:59:22
+# Generated on: 2016-09-14T18:48:43
 #
 # Input arguments:
 # t::Float64 => Current time value (scalar) 
