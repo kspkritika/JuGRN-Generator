@@ -1,6 +1,7 @@
 type VGRNSentence
 
   original_sentence::AbstractString
+  sentence_symbol::AbstractString
   sentence_actor_clause::AbstractString
   sentence_action_clause::AbstractString
   sentence_target_clause::AbstractString

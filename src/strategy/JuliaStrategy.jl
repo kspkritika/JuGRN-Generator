@@ -199,16 +199,22 @@ end
 
     # generate the binding functions -
     buffer *= "\t# Control function for $(gene_symbol) - \n"
-    for connection_object in activating_connections
+    for (index,connection_object) in enumerate(activating_connections)
 
       # actor -
       actor_list = connection_object.connection_actor_set
+      local_actor_symbol = "actor_set_ac_$(index)"
+
+      buffer *= "\tactor_set_$(gene_symbol) = ["
       for actor_object in actor_list
 
         actor_symbol = actor_object.species_symbol
-        buffer *= "\tb_$(gene_symbol)_$(actor_symbol) = ((protein_$(actor_symbol))^(n_$(gene_symbol)_$(actor_symbol)))/"
-        buffer *= "(K_$(gene_symbol)_$(actor_symbol)^(n_$(gene_symbol)_$(actor_symbol))+protein_$(actor_symbol)^(n_$(gene_symbol)_$(actor_symbol)))\n"
+        buffer *= "\t\t$(actor_symbol)\n"
       end
+      buffer *="\t]\n"
+      buffer *="\tactor = prod(actor_set_$(gene_symbol))\n"
+      buffer *= "\tb_$(gene_symbol)_$(actor_symbol) = (actor^(n_$(gene_symbol)_$(actor_symbol)))/"
+      buffer *= "(K_$(gene_symbol)_$(actor_symbol)^(n_$(gene_symbol)_$(actor_symbol))+protein_$(actor_symbol)^(n_$(gene_symbol)_$(actor_symbol)))\n"
     end
 
     for connection_object in inhibiting_connections
