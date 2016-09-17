@@ -1,7 +1,6 @@
 type VGRNSentence
 
   original_sentence::AbstractString
-  sentence_symbol::AbstractString
   sentence_actor_clause::AbstractString
   sentence_action_clause::AbstractString
   sentence_target_clause::AbstractString
@@ -32,6 +31,7 @@ end
 
 type ConnectionObject
 
+  connection_symbol::AbstractString
   connection_actor_set::Array{SpeciesObject}
   connection_target_set::Array{SpeciesObject}
   connection_type::Symbol

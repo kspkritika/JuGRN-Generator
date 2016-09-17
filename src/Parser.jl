@@ -30,10 +30,9 @@ function parse_grn_file(path_to_model_file::AbstractString)
       # sentence_action_clause::AbstractString
       # sentence_target_clause::AbstractString
       # sentence_delimiter::Char
-      grn_sentence.sentence_symbol = split_array[1]
-      grn_sentence.sentence_actor_clause = split_array[2]
-      grn_sentence.sentence_action_clause = split_array[3]
-      grn_sentence.sentence_target_clause = split_array[4]
+      grn_sentence.sentence_actor_clause = split_array[1]
+      grn_sentence.sentence_action_clause = split_array[2]
+      grn_sentence.sentence_target_clause = split_array[3]
       grn_sentence.sentence_delimiter = ' '
 
 

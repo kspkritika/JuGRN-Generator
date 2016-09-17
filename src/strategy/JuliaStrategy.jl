@@ -77,6 +77,27 @@ function build_copyright_header_buffer(problem_object::ProblemObject)
 
 end
 
+function iterate_binding_control_connection(gene_object::SpeciesObject,list_of_connections::Array{ConnectionObject})
+
+  # What is my gene_symbol -
+  gene_symbol = gene_object.species_symbol
+
+
+  buffer = ""
+  for connection_object in list_of_connections
+
+    # actor -
+    connection_symbol = connection_object.connection_symbol
+
+    buffer *= "\tn_$(gene_symbol)_$(connection_symbol) = binding_parameter_dictionary[\"n_$(gene_symbol)_$(connection_symbol)\"]\n"
+    buffer *= "\tK_$(gene_symbol)_$(connection_symbol) = binding_parameter_dictionary[\"K_$(gene_symbol)_$(connection_symbol)\"]\n"
+
+  end
+
+  return buffer
+
+end
+
 @debug function build_control_buffer(problem_object::ProblemObject)
 
   filename = "Control.jl"
@@ -128,26 +149,11 @@ end
     activating_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:activate)
     inhibiting_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:inhibit)
 
-    for connection_object in activating_connections
-      # actor -
-      actor_list = connection_object.connection_actor_set
-      for actor_object in actor_list
-        actor_symbol = actor_object.species_symbol
-        buffer *= "\tn_$(gene_symbol)_$(actor_symbol) = binding_parameter_dictionary[\"n_$(gene_symbol)_$(actor_symbol)\"]\n"
-        buffer *= "\tK_$(gene_symbol)_$(actor_symbol) = binding_parameter_dictionary[\"K_$(gene_symbol)_$(actor_symbol)\"]\n"
-      end
-    end
+    # activating connections -
+    buffer *= iterate_binding_control_connection(gene_object,activating_connections)
 
-    for connection_object in inhibiting_connections
-
-      # actor -
-      actor_list = connection_object.connection_actor_set
-      for actor_object in actor_list
-        actor_symbol = actor_object.species_symbol
-        buffer *= "\tn_$(gene_symbol)_$(actor_symbol) = binding_parameter_dictionary[\"n_$(gene_symbol)_$(actor_symbol)\"]\n"
-        buffer *= "\tK_$(gene_symbol)_$(actor_symbol) = binding_parameter_dictionary[\"K_$(gene_symbol)_$(actor_symbol)\"]\n"
-      end
-    end
+    # inhibiting_connections -
+    buffer *= iterate_binding_control_connection(gene_object,inhibiting_connections)
   end
 
   buffer *= "\n"

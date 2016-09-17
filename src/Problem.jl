@@ -23,7 +23,7 @@ using Debug
   return problem_object
 end
 
-function build_connection_list(statement_vector::Array{VGRNSentence})
+@debug function build_connection_list(statement_vector::Array{VGRNSentence})
 
   # initialize -
   list_of_connections = ConnectionObject[]
@@ -47,6 +47,29 @@ function build_connection_list(statement_vector::Array{VGRNSentence})
     target_set::Array{SpeciesObject} = species_object_factory(list_of_target_symbols)
 
     # set them on the connection object -
+    # ok - do we have a compound set of actors -
+    if (length(actor_set) == 1)
+
+
+      actor_object = actor_set[1]
+      connection_object.connection_symbol = actor_object.species_symbol
+    else
+
+
+      local_buffer = ""
+      number_of_actors = length(actor_set)
+      for (index,actor_object::SpeciesObject) in enumerate(actor_set)
+
+        local_buffer *= "$(actor_object.species_symbol)"
+        if (index <= number_of_actors - 1)
+          buffer *= "_"
+        end
+      end
+
+      connection_object.connection_symbol = local_buffer
+    end
+
+
     connection_object.connection_actor_set = actor_set
     connection_object.connection_target_set = target_set
 
