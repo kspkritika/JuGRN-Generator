@@ -98,6 +98,24 @@ function iterate_binding_control_connection(gene_object::SpeciesObject,list_of_c
 
 end
 
+function iterate_control_control_connection(gene_object::SpeciesObject,list_of_connections::Array{ConnectionObject})
+
+  # What is my gene_symbol -
+  gene_symbol = gene_object.species_symbol
+
+
+  buffer = ""
+  for connection_object in list_of_connections
+
+    # actor -
+    connection_symbol = connection_object.connection_symbol
+    buffer *= "\tW_$(gene_symbol)_$(connection_symbol) = control_parameter_dictionary[\"W_$(gene_symbol)_$(connection_symbol)\"]\n"
+  end
+
+  return buffer
+
+end
+
 @debug function build_control_buffer(problem_object::ProblemObject)
 
   filename = "Control.jl"
@@ -172,29 +190,15 @@ end
     buffer *="\tW_$(gene_symbol)_RNAP = control_parameter_dictionary[\"W_$(gene_symbol)_RNAP\"]\n"
 
     # activating -
-    for connection_object in activating_connections
-      # actor -
-      actor_list = connection_object.connection_actor_set
-      for actor_object in actor_list
-        actor_symbol = actor_object.species_symbol
-        buffer *= "\tW_$(gene_symbol)_$(actor_symbol) = control_parameter_dictionary[\"W_$(gene_symbol)_$(actor_symbol)\"]\n"
-      end
-    end
+    buffer *= iterate_control_control_connection(gene_object,activating_connections)
 
     # inhibting -
-    for connection_object in inhibiting_connections
-      # actor -
-      actor_list = connection_object.connection_actor_set
-      for actor_object in actor_list
-        actor_symbol = actor_object.species_symbol
-        buffer *= "\tW_$(gene_symbol)_$(actor_symbol) = control_parameter_dictionary[\"W_$(gene_symbol)_$(actor_symbol)\"]\n"
-      end
-    end
+    buffer *= iterate_control_control_connection(gene_object,activating_connections)
   end
 
   buffer *= "\n"
   # get list of genes -
-  for (index,gene_object) in enumerate(list_of_genes)
+  for (gene_index,gene_object) in enumerate(list_of_genes)
 
     # get gene symbol -
     gene_symbol = gene_object.species_symbol
@@ -204,75 +208,69 @@ end
     inhibiting_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:inhibit)
 
     # generate the binding functions -
-    buffer *= "\t# Control function for $(gene_symbol) - \n"
-    for (index,connection_object) in enumerate(activating_connections)
+    all_connections = [activating_connections inhibiting_connections]
+    for (index,connection_object) in enumerate(all_connections)
 
       # actor -
       actor_list = connection_object.connection_actor_set
-      local_actor_symbol = "actor_set_ac_$(index)"
+      connection_symbol = connection_object.connection_symbol
 
-      buffer *= "\tactor_set_$(gene_symbol) = ["
+      buffer *= "\t# Transfer function target:$(gene_symbol) actor:$(connection_symbol)\n"
+      buffer *= "\tactor_set_$(gene_symbol)_$(connection_symbol) = [\n"
       for actor_object in actor_list
 
         actor_symbol = actor_object.species_symbol
-        buffer *= "\t\t$(actor_symbol)\n"
+        buffer *= "\t\tprotein_$(actor_symbol)\n"
       end
+
       buffer *="\t]\n"
-      buffer *="\tactor = prod(actor_set_$(gene_symbol))\n"
-      buffer *= "\tb_$(gene_symbol)_$(actor_symbol) = (actor^(n_$(gene_symbol)_$(actor_symbol)))/"
-      buffer *= "(K_$(gene_symbol)_$(actor_symbol)^(n_$(gene_symbol)_$(actor_symbol))+protein_$(actor_symbol)^(n_$(gene_symbol)_$(actor_symbol)))\n"
+      buffer *="\tactor = prod(actor_set_$(gene_symbol)_$(connection_symbol))\n"
+      buffer *= "\tb_$(gene_symbol)_$(connection_symbol) = (actor^(n_$(gene_symbol)_$(connection_symbol)))/"
+      buffer *= "(K_$(gene_symbol)_$(connection_symbol)^(n_$(gene_symbol)_$(connection_symbol))+actor^(n_$(gene_symbol)_$(connection_symbol)))\n"
+      buffer *= "\n"
     end
 
-    for connection_object in inhibiting_connections
-
-      # actor -
-      actor_list = connection_object.connection_actor_set
-      for actor_object in actor_list
-
-        actor_symbol = actor_object.species_symbol
-        buffer *= "\tb_$(gene_symbol)_$(actor_symbol) = ((protein_$(actor_symbol))^(n_$(gene_symbol)_$(actor_symbol)))/"
-        buffer *= "(K_$(gene_symbol)_$(actor_symbol)^(n_$(gene_symbol)_$(actor_symbol))+protein_$(actor_symbol)^(n_$(gene_symbol)_$(actor_symbol)))\n"
-      end
-    end
-
-    buffer *= "\tcontrol_array[$(index)] = ("
+    buffer *= "\t# Control function for $(gene_symbol) - \n"
+    buffer *= "\tcontrol_array[$(gene_index)] = ("
     numerator = ""
-    for connection_object in activating_connections
-      # actor -
-      actor_list = connection_object.connection_actor_set
-      for actor_object in actor_list
-        actor_symbol = actor_object.species_symbol
-        numerator *= "W_$(gene_symbol)_$(actor_symbol)*b_$(gene_symbol)_$(actor_symbol)+"
-      end
-    end
-    buffer *= numerator[1:end-1]
-    buffer *= ")/(1+W_$(gene_symbol)_RNAP+"
 
-    demoninator = ""
-    for connection_object in activating_connections
-      # actor -
-      actor_list = connection_object.connection_actor_set
-      for actor_object in actor_list
-        actor_symbol = actor_object.species_symbol
-        demoninator *= "W_$(gene_symbol)_$(actor_symbol)*b_$(gene_symbol)_$(actor_symbol)+"
+    if (isempty(activating_connections) == true)
+      buffer *= "W_$(gene_symbol)_RNAP"
+    else
+
+      numerator *= "W_$(gene_symbol)_RNAP+"
+      for connection_object in activating_connections
+        # actor -
+        connection_symbol = connection_object.connection_symbol
+        numerator *= "W_$(gene_symbol)_$(connection_symbol)*b_$(gene_symbol)_$(connection_symbol)+"
       end
+      buffer *= numerator[1:end-1]
+    end
+
+    buffer *= ")/(1+W_$(gene_symbol)_RNAP"
+
+    if (isempty(activating_connections) == false)
+      demoninator = ""
+      for connection_object in activating_connections
+        # actor -
+        connection_symbol = connection_object.connection_symbol
+        demoninator *= "+W_$(gene_symbol)_$(connection_symbol)*b_$(gene_symbol)_$(connection_symbol)+"
+      end
+
+      buffer *= demoninator[1:end-1]
     end
 
     # ok - do we have inhibitory statements?
     if (isempty(inhibiting_connections) == true)
-      buffer *= demoninator[1:end-1]
       buffer *= ")\n"
       buffer *= "\n"
     else
-      buffer *= demoninator
+
       demoninator = ""
       for connection_object in inhibiting_connections
         # actor -
-        actor_list = connection_object.connection_actor_set
-        for actor_object in actor_list
-          actor_symbol = actor_object.species_symbol
-          demoninator *= "W_$(gene_symbol)_$(actor_symbol)*b_$(gene_symbol)_$(actor_symbol)+"
-        end
+        connection_symbol = connection_object.connection_symbol
+        demoninator *= "+W_$(gene_symbol)_$(connection_symbol)*b_$(gene_symbol)_$(connection_symbol)+"
       end
       buffer *= demoninator[1:end-1]
       buffer *= ")\n"
@@ -280,7 +278,7 @@ end
     end
   end
 
-  buffer *= "\n"
+  buffer *= "\t# return - \n"
   buffer *= "\treturn control_array\n"
   buffer *= "end\n"
 
@@ -412,25 +410,17 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
     activating_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:activate)
     inhibiting_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:inhibit)
 
-    for connection_object in activating_connections
-      # actor -
-      actor_list = connection_object.connection_actor_set
-      for actor_object in actor_list
-        actor_symbol = actor_object.species_symbol
-        buffer *= "\tbinding_parameter_dictionary[\"n_$(gene_symbol)_$(actor_symbol)\"] = 1.0\n"
-        buffer *= "\tbinding_parameter_dictionary[\"K_$(gene_symbol)_$(actor_symbol)\"] = 10.0\n"
-      end
-    end
+    # Iterate through all connections -
+    all_connections = [activating_connections inhibiting_connections]
+    for connection_object in all_connections
 
-    for connection_object in inhibiting_connections
+      # connection -
+      connection_symbol = connection_object.connection_symbol
 
-      # actor -
-      actor_list = connection_object.connection_actor_set
-      for actor_object in actor_list
-        actor_symbol = actor_object.species_symbol
-        buffer *= "\tbinding_parameter_dictionary[\"n_$(gene_symbol)_$(actor_symbol)\"] = 1.0\n"
-        buffer *= "\tbinding_parameter_dictionary[\"K_$(gene_symbol)_$(actor_symbol)\"] = 10.0\n"
-      end
+      # write the line -
+      buffer *= "\tbinding_parameter_dictionary[\"n_$(gene_symbol)_$(connection_symbol)\"] = 1.0\n"
+      buffer *= "\tbinding_parameter_dictionary[\"K_$(gene_symbol)_$(connection_symbol)\"] = 10.0\n"
+
     end
   end
 
@@ -447,26 +437,15 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
     inhibiting_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:inhibit)
 
     # generate an RNAP term -
-    buffer *= "\tcontrol_parameter_dictionary[\"W_$(gene_symbol)_RNAP\"] = 0.1\n"
+    buffer *= "\tcontrol_parameter_dictionary[\"W_$(gene_symbol)_RNAP\"] = 0.01\n"
 
-    # Activating connections -
-    for connection_object in activating_connections
-      # actor -
-      actor_list = connection_object.connection_actor_set
-      for actor_object in actor_list
-        actor_symbol = actor_object.species_symbol
-        buffer *= "\tcontrol_parameter_dictionary[\"W_$(gene_symbol)_$(actor_symbol)\"] = 1.0\n"
-      end
-    end
+    # process all connections -
+    all_connections = [activating_connections inhibiting_connections]
+    for connection_object in all_connections
 
-    # inhinitory connections -
-    for connection_object in inhibiting_connections
       # actor -
-      actor_list = connection_object.connection_actor_set
-      for actor_object in actor_list
-        actor_symbol = actor_object.species_symbol
-        buffer *= "\tcontrol_parameter_dictionary[\"W_$(gene_symbol)_$(actor_symbol)\"] = 1.0\n"
-      end
+      connection_symbol = connection_object.connection_symbol
+      buffer *= "\tcontrol_parameter_dictionary[\"W_$(gene_symbol)_$(connection_symbol)\"] = 1.0\n"
     end
   end
 
@@ -802,35 +781,18 @@ function generate_parameter_name_mapping(list_of_genes::Array{SpeciesObject},lis
     activating_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:activate)
     inhibiting_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:inhibit)
 
-    for connection_object in activating_connections
-      # actor -
-      actor_list = connection_object.connection_actor_set
-      for actor_object in actor_list
-        actor_symbol = actor_object.species_symbol
-
-        tmp_name = "n_$(gene_symbol)_$(actor_symbol)"
-        push!(list_of_names,tmp_name)
-
-        tmp_name = "K_$(gene_symbol)_$(actor_symbol)"
-        push!(list_of_names,tmp_name)
-
-      end
-    end
-
-    for connection_object in inhibiting_connections
+    # grab the list of connections -
+    all_connections = [activating_connections inhibiting_connections]
+    for connection_object in all_connections
 
       # actor -
-      actor_list = connection_object.connection_actor_set
-      for actor_object in actor_list
-        actor_symbol = actor_object.species_symbol
+      connection_symbol = connection_object.connection_symbol
 
-        tmp_name = "n_$(gene_symbol)_$(actor_symbol)"
-        push!(list_of_names,tmp_name)
+      tmp_name = "n_$(gene_symbol)_$(connection_symbol)"
+      push!(list_of_names,tmp_name)
 
-        tmp_name = "K_$(gene_symbol)_$(actor_symbol)"
-        push!(list_of_names,tmp_name)
-
-      end
+      tmp_name = "K_$(gene_symbol)_$(connection_symbol)"
+      push!(list_of_names,tmp_name)
     end
   end
 
@@ -847,30 +809,14 @@ function generate_parameter_name_mapping(list_of_genes::Array{SpeciesObject},lis
     tmp_name = "W_$(gene_symbol)_RNAP"
     push!(list_of_names,tmp_name)
 
-    # Activating connections -
-    for connection_object in activating_connections
+    # grab the list of connections -
+    all_connections = [activating_connections inhibiting_connections]
+    for connection_object in all_connections
+
       # actor -
-      actor_list = connection_object.connection_actor_set
-      for actor_object in actor_list
-        actor_symbol = actor_object.species_symbol
-
-        tmp_name = "W_$(gene_symbol)_$(actor_symbol)"
-        push!(list_of_names,tmp_name)
-
-      end
-    end
-
-    # inhinitory connections -
-    for connection_object in inhibiting_connections
-      # actor -
-      actor_list = connection_object.connection_actor_set
-      for actor_object in actor_list
-        actor_symbol = actor_object.species_symbol
-
-        tmp_name = "W_$(gene_symbol)_$(actor_symbol)"
-        push!(list_of_names,tmp_name)
-
-      end
+      connection_symbol = connection_object.connection_symbol
+      tmp_name = "W_$(gene_symbol)_$(connection_symbol)"
+      push!(list_of_names,tmp_name)
     end
   end
 
@@ -884,6 +830,6 @@ function generate_parameter_name_mapping(list_of_genes::Array{SpeciesObject},lis
   end
   buffer *= "\t]\n"
 
-
+  # return -
   return buffer
 end

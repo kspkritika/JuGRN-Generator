@@ -25,7 +25,7 @@
 # ----------------------------------------------------------------------------------- #
 # Function: DataDictionary
 # Description: Holds simulation and model parameters as key => value pairs in a Julia Dict()
-# Generated on: 2016-09-14T18:48:43
+# Generated on: 2016-09-18T10:39:47
 #
 # Input arguments:
 # time_start::Float64 => Simulation start time value (scalar) 
@@ -46,18 +46,21 @@ function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::F
 	gene_coding_length_array = [
 		15000	;	# 1	gene_1
 		15000	;	# 2	gene_2
+		15000	;	# 3	gene_3
 	]
 
 	# array of mRNA coding lengths - 
 	mRNA_coding_length_array = [
-		gene_coding_length_array[1]	;	# 3	1	mRNA_gene_1
-		gene_coding_length_array[2]	;	# 4	2	mRNA_gene_2
+		gene_coding_length_array[1]	;	# 4	1	mRNA_gene_1
+		gene_coding_length_array[2]	;	# 5	2	mRNA_gene_2
+		gene_coding_length_array[3]	;	# 6	3	mRNA_gene_3
 	]
 
 	# array of mRNA coding lengths - 
 	protein_coding_length_array = [
-		round((0.33)*mRNA_coding_length_array[1])	;	# 5	1	protein_gene_1
-		round((0.33)*mRNA_coding_length_array[2])	;	# 6	2	protein_gene_2
+		round((0.33)*mRNA_coding_length_array[1])	;	# 7	1	protein_gene_1
+		round((0.33)*mRNA_coding_length_array[2])	;	# 8	2	protein_gene_2
+		round((0.33)*mRNA_coding_length_array[3])	;	# 9	3	protein_gene_3
 	]
 
 	# ------------------------------------------------------------------------------------------#
@@ -114,27 +117,41 @@ function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::F
 	initial_condition_array = [
 		avg_gene_concentration	;	# 1	gene_1
 		avg_gene_concentration	;	# 2	gene_2
-		0.0	;	# 3	mRNA_gene_1
-		0.0	;	# 4	mRNA_gene_2
-		0.0	;	# 5	protein_gene_1
-		0.0	;	# 6	protein_gene_2
+		avg_gene_concentration	;	# 3	gene_3
+		0.0	;	# 4	mRNA_gene_1
+		0.0	;	# 5	mRNA_gene_2
+		0.0	;	# 6	mRNA_gene_3
+		0.0	;	# 7	protein_gene_1
+		0.0	;	# 8	protein_gene_2
+		0.0	;	# 9	protein_gene_3
 	]
 
 	binding_parameter_dictionary = Dict{AbstractString,Float64}()
-	binding_parameter_dictionary["n_gene_1_gene_1"] = 1.0
-	binding_parameter_dictionary["K_gene_1_gene_1"] = 10.0
+	binding_parameter_dictionary["n_gene_1_gene_3_gene_2"] = 1.0
+	binding_parameter_dictionary["K_gene_1_gene_3_gene_2"] = 10.0
 	binding_parameter_dictionary["n_gene_1_gene_2"] = 1.0
 	binding_parameter_dictionary["K_gene_1_gene_2"] = 10.0
-	binding_parameter_dictionary["n_gene_2_gene_1"] = 1.0
-	binding_parameter_dictionary["K_gene_2_gene_1"] = 10.0
 
 	# Alias the control function parameters - 
 	control_parameter_dictionary = Dict{AbstractString,Float64}()
-	control_parameter_dictionary["W_gene_1_RNAP"] = 0.1
-	control_parameter_dictionary["W_gene_1_gene_1"] = 1.0
+	control_parameter_dictionary["W_gene_1_RNAP"] = 0.01
+	control_parameter_dictionary["W_gene_1_gene_3_gene_2"] = 1.0
 	control_parameter_dictionary["W_gene_1_gene_2"] = 1.0
-	control_parameter_dictionary["W_gene_2_RNAP"] = 0.1
-	control_parameter_dictionary["W_gene_2_gene_1"] = 1.0
+	control_parameter_dictionary["W_gene_2_RNAP"] = 0.01
+	control_parameter_dictionary["W_gene_3_RNAP"] = 0.01
+
+	# Parameter name index array - 
+	parameter_name_mapping_array = [
+		"n_gene_1_gene_3_gene_2"	;	# 1
+		"K_gene_1_gene_3_gene_2"	;	# 2
+		"n_gene_1_gene_2"	;	# 3
+		"K_gene_1_gene_2"	;	# 4
+		"W_gene_1_RNAP"	;	# 5
+		"W_gene_1_gene_3_gene_2"	;	# 6
+		"W_gene_1_gene_2"	;	# 7
+		"W_gene_2_RNAP"	;	# 8
+		"W_gene_3_RNAP"	;	# 9
+	]
 
 	# =============================== DO NOT EDIT BELOW THIS LINE ============================== #
 	data_dictionary = Dict{AbstractString,Any}()
@@ -162,6 +179,7 @@ function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::F
 
 	data_dictionary["binding_parameter_dictionary"] = binding_parameter_dictionary
 	data_dictionary["control_parameter_dictionary"] = control_parameter_dictionary
+	data_dictionary["parameter_name_mapping_array"] = parameter_name_mapping_array
 	# =============================== DO NOT EDIT ABOVE THIS LINE ============================== #
 	return data_dictionary
 end

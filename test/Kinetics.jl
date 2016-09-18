@@ -25,7 +25,7 @@
 # ----------------------------------------------------------------------------------- #
 # Function: calculate_transcription_rates
 # Description: Calculate the transcriptional rate array at time t
-# Generated on: 2016-09-14T18:48:43
+# Generated on: 2016-09-18T10:39:47
 #
 # Input arguments:
 # t::Float64 => Current time value (scalar) 
@@ -40,9 +40,10 @@ function calculate_transcription_rates(t::Float64,x::Array{Float64,1},data_dicti
 	# Alias the species - 
 	gene_1 = x[1]
 	gene_2 = x[2]
+	gene_3 = x[3]
 
 	# Initialize the transcription rate - 
-	transcription_rate_array = zeros(2)
+	transcription_rate_array = zeros(3)
 	KSAT = data_dictionary["saturation_constant_transcription"]
 	kcat_transcription = data_dictionary["kcat_transcription"]
 	rnapII_concentration = data_dictionary["rnapII_concentration"]
@@ -60,6 +61,11 @@ function calculate_transcription_rates(t::Float64,x::Array{Float64,1},data_dicti
 	scale_factor = (average_transcript_length/gene_length)
 	transcription_rate_array[2] = scale_factor*kcat_transcription*(rnapII_concentration)*((gene_2)/(KSAT+gene_2))
 
+	# Gene: gene_3
+	gene_length = gene_coding_length_array[3]
+	scale_factor = (average_transcript_length/gene_length)
+	transcription_rate_array[3] = scale_factor*kcat_transcription*(rnapII_concentration)*((gene_3)/(KSAT+gene_3))
+
 
 	# return transcription_rate_array - 
 	return transcription_rate_array
@@ -68,7 +74,7 @@ end
 # ----------------------------------------------------------------------------------- #
 # Function: calculate_background_transcription_rates
 # Description: Calculate the leak transcriptional rate array at time t
-# Generated on: 2016-09-14T18:48:43
+# Generated on: 2016-09-18T10:39:47
 #
 # Input arguments:
 # t::Float64 => Current time value (scalar) 
@@ -86,7 +92,7 @@ end
 # ----------------------------------------------------------------------------------- #
 # Function: calculate_translation_rates
 # Description: Calculate the translation rate array at time t
-# Generated on: 2016-09-14T18:48:43
+# Generated on: 2016-09-18T10:39:47
 #
 # Input arguments:
 # t::Float64 => Current time value (scalar) 
@@ -99,11 +105,12 @@ end
 function calculate_translation_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 
 	# Alias the species - 
-	mRNA_gene_1 = x[3]
-	mRNA_gene_2 = x[4]
+	mRNA_gene_1 = x[4]
+	mRNA_gene_2 = x[5]
+	mRNA_gene_3 = x[6]
 
 	# Initialize the translation rate - 
-	translation_rate_array = zeros(2)
+	translation_rate_array = zeros(3)
 	KSAT = data_dictionary["saturation_constant_translation"]
 	kcat_translation = data_dictionary["kcat_translation"]
 	ribosome_concentration = data_dictionary["ribosome_concentration"]
@@ -112,14 +119,19 @@ function calculate_translation_rates(t::Float64,x::Array{Float64,1},data_diction
 
 	# Populate the translation rate array - 
 	# Transcript: mRNA_gene_1
-	protein_length = protein_coding_length_array[3]
+	protein_length = protein_coding_length_array[4]
 	scale_factor = (average_protein_length/protein_length)
 	translation_rate_array[1] = scale_factor*kcat_translation*(ribosome_concentration)*((mRNA_gene_1)/(KSAT+mRNA_gene_1))
 
 	# Transcript: mRNA_gene_2
-	protein_length = protein_coding_length_array[4]
+	protein_length = protein_coding_length_array[5]
 	scale_factor = (average_protein_length/protein_length)
 	translation_rate_array[2] = scale_factor*kcat_translation*(ribosome_concentration)*((mRNA_gene_2)/(KSAT+mRNA_gene_2))
+
+	# Transcript: mRNA_gene_3
+	protein_length = protein_coding_length_array[6]
+	scale_factor = (average_protein_length/protein_length)
+	translation_rate_array[3] = scale_factor*kcat_translation*(ribosome_concentration)*((mRNA_gene_3)/(KSAT+mRNA_gene_3))
 
 
 	# return translation array - 
@@ -129,7 +141,7 @@ end
 # ----------------------------------------------------------------------------------- #
 # Function: calculate_mRNA_degradation_rates
 # Description: Calculate the mRNA degradation rate array at time t
-# Generated on: 2016-09-14T18:48:43
+# Generated on: 2016-09-18T10:39:47
 #
 # Input arguments:
 # t::Float64 => Current time value (scalar) 
@@ -142,16 +154,18 @@ end
 function calculate_mRNA_degradation_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 
 	# Alias the species - 
-	mRNA_gene_1 = x[3]
-	mRNA_gene_2 = x[4]
+	mRNA_gene_1 = x[4]
+	mRNA_gene_2 = x[5]
+	mRNA_gene_3 = x[6]
 
 	# Initialize the degrdation array - 
-	degradation_rate_array = zeros(2)
+	degradation_rate_array = zeros(3)
 	mRNA_degrdation_constant = data_dictionary["degradation_constant_mRNA"]
 
 	# Calculate the degradation_rate_array - 
 	degradation_rate_array[1] = (mRNA_degrdation_constant)*mRNA_gene_1
 	degradation_rate_array[2] = (mRNA_degrdation_constant)*mRNA_gene_2
+	degradation_rate_array[3] = (mRNA_degrdation_constant)*mRNA_gene_3
 
 	# return the degrdation rate array - 
 	return degradation_rate_array
@@ -160,7 +174,7 @@ end
 # ----------------------------------------------------------------------------------- #
 # Function: calculate_protein_degradation_rates
 # Description: Calculate the protein degradation rate array at time t
-# Generated on: 2016-09-14T18:48:43
+# Generated on: 2016-09-18T10:39:47
 #
 # Input arguments:
 # t::Float64 => Current time value (scalar) 
@@ -173,16 +187,18 @@ end
 function calculate_protein_degradation_rates(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 
 	# Alias the species - 
-	protein_gene_1 = x[5]
-	protein_gene_2 = x[6]
+	protein_gene_1 = x[7]
+	protein_gene_2 = x[8]
+	protein_gene_3 = x[9]
 
 	# Initialize the degrdation array - 
-	degradation_rate_array = zeros(2)
+	degradation_rate_array = zeros(3)
 	protein_degrdation_constant = data_dictionary["degradation_constant_protein"]
 
 	# Calculate the degradation_rate_array - 
 	degradation_rate_array[1] = (protein_degrdation_constant)*protein_gene_1
 	degradation_rate_array[2] = (protein_degrdation_constant)*protein_gene_2
+	degradation_rate_array[3] = (protein_degrdation_constant)*protein_gene_3
 
 	# return the degrdation rate array - 
 	return degradation_rate_array

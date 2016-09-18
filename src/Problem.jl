@@ -50,7 +50,6 @@ end
     # ok - do we have a compound set of actors -
     if (length(actor_set) == 1)
 
-
       actor_object = actor_set[1]
       connection_object.connection_symbol = actor_object.species_symbol
     else
@@ -62,7 +61,7 @@ end
 
         local_buffer *= "$(actor_object.species_symbol)"
         if (index <= number_of_actors - 1)
-          buffer *= "_"
+          local_buffer *= "_"
         end
       end
 

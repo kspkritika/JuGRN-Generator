@@ -25,7 +25,7 @@
 # ----------------------------------------------------------------------------------- #
 # Function: Control
 # Description: Calculate the transcriptional control array at time t
-# Generated on: 2016-09-14T18:48:43
+# Generated on: 2016-09-18T10:39:47
 #
 # Input arguments:
 # t::Float64 => Current time value (scalar) 
@@ -38,41 +38,58 @@
 function Control(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 
 	# initialize the control - 
-	control_array = zeros(2)
+	control_array = zeros(3)
 
 	# Alias the species - 
 	gene_1 = x[1]
 	gene_2 = x[2]
-	mRNA_gene_1 = x[3]
-	mRNA_gene_2 = x[4]
-	protein_gene_1 = x[5]
-	protein_gene_2 = x[6]
+	gene_3 = x[3]
+	mRNA_gene_1 = x[4]
+	mRNA_gene_2 = x[5]
+	mRNA_gene_3 = x[6]
+	protein_gene_1 = x[7]
+	protein_gene_2 = x[8]
+	protein_gene_3 = x[9]
 
 	# Alias the binding parameters - 
 	binding_parameter_dictionary = data_dictionary["binding_parameter_dictionary"]
-	n_gene_1_gene_1 = binding_parameter_dictionary["n_gene_1_gene_1"]
-	K_gene_1_gene_1 = binding_parameter_dictionary["K_gene_1_gene_1"]
+	n_gene_1_gene_3_gene_2 = binding_parameter_dictionary["n_gene_1_gene_3_gene_2"]
+	K_gene_1_gene_3_gene_2 = binding_parameter_dictionary["K_gene_1_gene_3_gene_2"]
 	n_gene_1_gene_2 = binding_parameter_dictionary["n_gene_1_gene_2"]
 	K_gene_1_gene_2 = binding_parameter_dictionary["K_gene_1_gene_2"]
-	n_gene_2_gene_1 = binding_parameter_dictionary["n_gene_2_gene_1"]
-	K_gene_2_gene_1 = binding_parameter_dictionary["K_gene_2_gene_1"]
 
 	# Alias the control function parameters - 
 	control_parameter_dictionary = data_dictionary["control_parameter_dictionary"]
 	W_gene_1_RNAP = control_parameter_dictionary["W_gene_1_RNAP"]
-	W_gene_1_gene_1 = control_parameter_dictionary["W_gene_1_gene_1"]
-	W_gene_1_gene_2 = control_parameter_dictionary["W_gene_1_gene_2"]
+	W_gene_1_gene_3_gene_2 = control_parameter_dictionary["W_gene_1_gene_3_gene_2"]
+	W_gene_1_gene_3_gene_2 = control_parameter_dictionary["W_gene_1_gene_3_gene_2"]
 	W_gene_2_RNAP = control_parameter_dictionary["W_gene_2_RNAP"]
-	W_gene_2_gene_1 = control_parameter_dictionary["W_gene_2_gene_1"]
+	W_gene_3_RNAP = control_parameter_dictionary["W_gene_3_RNAP"]
+
+	# Transfer function target:gene_1 actor:gene_3_gene_2
+	actor_set_gene_1_gene_3_gene_2 = [
+		protein_gene_3
+		protein_gene_2
+	]
+	actor = prod(actor_set_gene_1_gene_3_gene_2)
+	b_gene_1_gene_3_gene_2 = (actor^(n_gene_1_gene_3_gene_2))/(K_gene_1_gene_3_gene_2^(n_gene_1_gene_3_gene_2)+actor^(n_gene_1_gene_3_gene_2))
+
+	# Transfer function target:gene_1 actor:gene_2
+	actor_set_gene_1_gene_2 = [
+		protein_gene_2
+	]
+	actor = prod(actor_set_gene_1_gene_2)
+	b_gene_1_gene_2 = (actor^(n_gene_1_gene_2))/(K_gene_1_gene_2^(n_gene_1_gene_2)+actor^(n_gene_1_gene_2))
 
 	# Control function for gene_1 - 
-	b_gene_1_gene_1 = ((protein_gene_1)^(n_gene_1_gene_1))/(K_gene_1_gene_1^(n_gene_1_gene_1)+protein_gene_1^(n_gene_1_gene_1))
-	b_gene_1_gene_2 = ((protein_gene_2)^(n_gene_1_gene_2))/(K_gene_1_gene_2^(n_gene_1_gene_2)+protein_gene_2^(n_gene_1_gene_2))
-	control_array[1] = (W_gene_1_gene_1*b_gene_1_gene_1)/(1+W_gene_1_RNAP+W_gene_1_gene_1*b_gene_1_gene_1+W_gene_1_gene_2*b_gene_1_gene_2)
+	control_array[1] = (W_gene_1_RNAP+W_gene_1_gene_3_gene_2*b_gene_1_gene_3_gene_2)/(1+W_gene_1_RNAP+W_gene_1_gene_3_gene_2*b_gene_1_gene_3_gene_2+W_gene_1_gene_2*b_gene_1_gene_2)
 
 	# Control function for gene_2 - 
-	b_gene_2_gene_1 = ((protein_gene_1)^(n_gene_2_gene_1))/(K_gene_2_gene_1^(n_gene_2_gene_1)+protein_gene_1^(n_gene_2_gene_1))
-	control_array[2] = (W_gene_2_gene_1*b_gene_2_gene_1)/(1+W_gene_2_RNAP+W_gene_2_gene_1*b_gene_2_gene_1)
+	control_array[2] = (W_gene_2_RNAP)/(1+W_gene_2_RNAP)
 
+	# Control function for gene_3 - 
+	control_array[3] = (W_gene_3_RNAP)/(1+W_gene_3_RNAP)
+
+	# return - 
 	return control_array
 end
