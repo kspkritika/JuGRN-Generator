@@ -1,9 +1,3 @@
-# includes -
-include("Kinetics.jl")
-include("Control.jl")
-include("Inputs.jl")
-using Debug
-
 # ----------------------------------------------------------------------------------- #
 # Copyright (c) 2016 Varnerlab
 # Robert Frederick School of Chemical and Biomolecular Engineering

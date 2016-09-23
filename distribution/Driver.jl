@@ -1,9 +1,6 @@
-include("DataDictionary.jl")
-include("SolveBalances.jl")
-
 # Script to solve the balance equations -
 time_start = 0.0
-time_stop = 100.0
+time_stop = 120.0
 time_step_size = 0.01
 
 # Load the data dictionary -

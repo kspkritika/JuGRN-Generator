@@ -116,7 +116,7 @@ function iterate_control_control_connection(gene_object::SpeciesObject,list_of_c
 
 end
 
-@debug function build_control_buffer(problem_object::ProblemObject)
+function build_control_buffer(problem_object::ProblemObject)
 
   filename = "Control.jl"
 
@@ -742,7 +742,7 @@ function build_kinetics_buffer(problem_object::ProblemObject)
   return (program_component)
 end
 
-@debug function build_inputs_buffer(problem_object::ProblemObject)
+function build_inputs_buffer(problem_object::ProblemObject)
 
   filename = "Inputs.jl"
 
@@ -760,8 +760,11 @@ end
   buffer *= function_comment_buffer
   buffer *= "function calculate_input_array(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})\n"
   buffer *= "\n"
+  buffer *= "\t# Initialize default - \n"
+  buffer *= "\tu_array = zeros(length(x))\n"
+  buffer *= "\n"
   buffer *= "\t# return - \n"
-  buffer *= "\treturn zeros(length(x))\n"
+  buffer *= "\treturn u_array\n"
   buffer *= "end\n"
 
   # build the component -

@@ -1,6 +1,4 @@
-using Debug
-
-@debug function generate_problem_object(statement_vector::Array{VGRNSentence})
+function generate_problem_object(statement_vector::Array{VGRNSentence})
 
   # Initilize an empty problem object -
   problem_object::ProblemObject = ProblemObject()
@@ -23,7 +21,7 @@ using Debug
   return problem_object
 end
 
-@debug function build_connection_list(statement_vector::Array{VGRNSentence})
+function build_connection_list(statement_vector::Array{VGRNSentence})
 
   # initialize -
   list_of_connections = ConnectionObject[]
@@ -98,8 +96,7 @@ function species_object_factory(list_of_symbols::Array{AbstractString})
   return species_set
 end
 
-
-@debug function build_species_list(statement_vector::Array{VGRNSentence})
+function build_species_list(statement_vector::Array{VGRNSentence})
 
   list_of_symbols = AbstractString[]
   for vgrn_sentence in statement_vector
@@ -201,7 +198,7 @@ function recursive_species_parser!(sentence_char_array::Array{Char},list_of_symb
 
     # Store the symbol -
     if (isempty(biological_symbol_cache) == false)
-      push!(list_of_symbols,AbstractString(biological_symbol_cache))
+      push!(list_of_symbols,String(biological_symbol_cache))
     end
 
     @show sentence_char_array

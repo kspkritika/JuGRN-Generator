@@ -1,6 +1,3 @@
-include("Balances.jl")
-using ODE
-
 # ----------------------------------------------------------------------------------- #
 # Copyright (c) 2016 Varnerlab
 # School of Chemical Engineering Purdue University
