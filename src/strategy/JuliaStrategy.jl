@@ -116,7 +116,7 @@ function iterate_control_control_connection(gene_object::SpeciesObject,list_of_c
 
 end
 
-@debug function build_control_buffer(problem_object::ProblemObject)
+function build_control_buffer(problem_object::ProblemObject)
 
   filename = "Control.jl"
 
@@ -304,6 +304,9 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
   comment_header_dictionary = problem_object.configuration_dictionary["function_comment_dictionary"]["data_dictionary_function"]
   function_comment_buffer = build_function_header_buffer(comment_header_dictionary)
 
+  # default parameter default dictionary -
+  parameter_value_default_dictionary = problem_object.configuration_dictionary["default_parameter_dictionary"]
+
   # get list of species from the po -
   list_of_species::Array{SpeciesObject} = problem_object.list_of_species
 
@@ -423,7 +426,7 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
 
       # write the line -
       buffer *= "\tbinding_parameter_dictionary[\"n_$(gene_symbol)_$(connection_symbol)\"] = 1.0\n"
-      buffer *= "\tbinding_parameter_dictionary[\"K_$(gene_symbol)_$(connection_symbol)\"] = 10.0\n"
+      buffer *= "\tbinding_parameter_dictionary[\"K_$(gene_symbol)_$(connection_symbol)\"] = 100.0\n"
 
     end
   end
@@ -431,6 +434,7 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
   buffer *= "\n"
   buffer *= "\t# Alias the control function parameters - \n"
   buffer *= "\tcontrol_parameter_dictionary = Dict{AbstractString,Float64}()\n"
+  default_W_gene_symbol_RNAP = parameter_value_default_dictionary["default_background_expression_parameter"]
   for (index,gene_object) in enumerate(list_of_genes)
 
     # get gene symbol -
@@ -441,7 +445,7 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
     inhibiting_connections = is_species_a_target_in_connection_list(list_of_connections,gene_object,:inhibit)
 
     # generate an RNAP term -
-    buffer *= "\tcontrol_parameter_dictionary[\"W_$(gene_symbol)_RNAP\"] = 0.01\n"
+    buffer *= "\tcontrol_parameter_dictionary[\"W_$(gene_symbol)_RNAP\"] = $(default_W_gene_symbol_RNAP)\n"
 
     # process all connections -
     list_of_all_connections = ConnectionObject[]
@@ -742,7 +746,7 @@ function build_kinetics_buffer(problem_object::ProblemObject)
   return (program_component)
 end
 
-@debug function build_inputs_buffer(problem_object::ProblemObject)
+function build_inputs_buffer(problem_object::ProblemObject)
 
   filename = "Inputs.jl"
 
@@ -760,8 +764,11 @@ end
   buffer *= function_comment_buffer
   buffer *= "function calculate_input_array(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})\n"
   buffer *= "\n"
+  buffer *= "\t# Initialize default - \n"
+  buffer *= "\tu_array = zeros(length(x))\n"
+  buffer *= "\n"
   buffer *= "\t# return - \n"
-  buffer *= "\treturn zeros(length(x))\n"
+  buffer *= "\treturn u_array\n"
   buffer *= "end\n"
 
   # build the component -
