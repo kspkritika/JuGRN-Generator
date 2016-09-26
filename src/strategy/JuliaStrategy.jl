@@ -193,7 +193,7 @@ function build_control_buffer(problem_object::ProblemObject)
     buffer *= iterate_control_control_connection(gene_object,activating_connections)
 
     # inhibting -
-    buffer *= iterate_control_control_connection(gene_object,activating_connections)
+    buffer *= iterate_control_control_connection(gene_object,inhibiting_connections)
   end
 
   buffer *= "\n"
