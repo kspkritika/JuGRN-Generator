@@ -406,6 +406,7 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
   # get list of connections -
   list_of_connections::Array{ConnectionObject} = problem_object.list_of_connections
   buffer *= "\tbinding_parameter_dictionary = Dict{AbstractString,Float64}()\n"
+  default_TF_KD_parameter = parameter_value_default_dictionary["default_TF_KD_parameter"]
   for (index,gene_object) in enumerate(list_of_genes)
 
     # get gene symbol -
@@ -426,7 +427,7 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
 
       # write the line -
       buffer *= "\tbinding_parameter_dictionary[\"n_$(gene_symbol)_$(connection_symbol)\"] = 1.0\n"
-      buffer *= "\tbinding_parameter_dictionary[\"K_$(gene_symbol)_$(connection_symbol)\"] = 100.0\n"
+      buffer *= "\tbinding_parameter_dictionary[\"K_$(gene_symbol)_$(connection_symbol)\"] = $(default_TF_KD_parameter)\n"
 
     end
   end

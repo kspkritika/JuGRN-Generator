@@ -5,7 +5,8 @@
     "default_protein_initial_condition":"0.0004",
     "default_saturation_constant":"20.0",
     "default_enzyme_kcat":"25000.0",
-    "default_background_expression_parameter":"0.001"
+    "default_background_expression_parameter":"0.001",
+    "default_TF_KD_parameter":"120.0"
   },
 
   "default_user_dictionary":{
