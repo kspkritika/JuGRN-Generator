@@ -256,10 +256,10 @@ function build_control_buffer(problem_object::ProblemObject)
       for connection_object in activating_connections
         # actor -
         connection_symbol = connection_object.connection_symbol
-        demoninator *= "+W_$(gene_symbol)_$(connection_symbol)*b_$(gene_symbol)_$(connection_symbol)+"
+        demoninator *= "+W_$(gene_symbol)_$(connection_symbol)*b_$(gene_symbol)_$(connection_symbol)"
       end
 
-      buffer *= demoninator[1:end-1]
+      buffer *= demoninator[1:end]
     end
 
     # ok - do we have inhibitory statements?
@@ -272,9 +272,10 @@ function build_control_buffer(problem_object::ProblemObject)
       for connection_object in inhibiting_connections
         # actor -
         connection_symbol = connection_object.connection_symbol
-        demoninator *= "+W_$(gene_symbol)_$(connection_symbol)*b_$(gene_symbol)_$(connection_symbol)+"
+        demoninator *= "+W_$(gene_symbol)_$(connection_symbol)*b_$(gene_symbol)_$(connection_symbol)"
       end
-      buffer *= demoninator[1:end-1]
+
+      buffer *= demoninator[1:end]
       buffer *= ")\n"
       buffer *= "\n"
     end
