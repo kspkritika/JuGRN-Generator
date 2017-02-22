@@ -5,6 +5,7 @@ include("Inputs.jl")
 include("DataDictionary.jl")
 include("SolveBalances.jl")
 include("Balances.jl")
+include("Utility.jl")
 using ODE
 
 # List any custom includes here ...
