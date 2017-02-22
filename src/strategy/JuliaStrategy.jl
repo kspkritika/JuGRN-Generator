@@ -466,6 +466,11 @@ function build_data_dictionary_buffer(problem_object::ProblemObject,host_flag::S
     end
   end
 
+  # put the misc dictionary -
+  buffer *= "\n"
+  buffer *= @include_function("misc_parameter_dictionary","\t")
+  buffer *= "\n"
+
   # parameter name mapping -
   buffer *= "\n"
   buffer *= "\t# Parameter name index array - \n"
@@ -501,6 +506,7 @@ function build_data_dictionary_buffer(problem_object::ProblemObject,host_flag::S
   buffer *= "\tdata_dictionary[\"binding_parameter_dictionary\"] = binding_parameter_dictionary\n"
   buffer *= "\tdata_dictionary[\"control_parameter_dictionary\"] = control_parameter_dictionary\n"
   buffer *= "\tdata_dictionary[\"parameter_name_mapping_array\"] = parameter_name_mapping_array\n"
+  buffer *= "\tdata_dictionary[\"misc_parameter_dictionary\"] = misc_parameter_dictionary\n"
   buffer *= "\t# =============================== DO NOT EDIT ABOVE THIS LINE ============================== #\n"
   buffer *= "\treturn data_dictionary\n"
   buffer *= "end\n"
