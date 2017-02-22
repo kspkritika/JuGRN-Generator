@@ -323,6 +323,9 @@ function build_data_dictionary_buffer(problem_object::ProblemObject,host_flag::S
   buffer *= "\tdilution_matrix = readdlm(\"./Dilution.dat\")\n"
   buffer *= "\tdegradation_matrix = readdlm(\"./Degradation.dat\")\n"
   buffer *= "\n"
+  buffer *= "\t# number of states, and rates - \n"
+  buffer *= "\t(number_of_states,number_of_rates) = size(stoichiometric_matrix)\n"
+  buffer *= "\n"
   buffer *= "\t# array of gene lengths - \n"
   buffer *= "\tgene_coding_length_array = [\n"
 
@@ -481,6 +484,7 @@ function build_data_dictionary_buffer(problem_object::ProblemObject,host_flag::S
   buffer *= "\n"
   buffer *= "\t# =============================== DO NOT EDIT BELOW THIS LINE ============================== #\n"
   buffer *= "\tdata_dictionary = Dict{AbstractString,Any}()\n"
+  buffer *= "\tdata_dictionary[\"number_of_states\"] = number_of_states\n"
   buffer *= "\tdata_dictionary[\"initial_condition_array\"] = initial_condition_array\n"
   buffer *= "\tdata_dictionary[\"average_transcript_length\"] = average_transcript_length\n"
   buffer *= "\tdata_dictionary[\"average_protein_length\"] = average_protein_length\n"
