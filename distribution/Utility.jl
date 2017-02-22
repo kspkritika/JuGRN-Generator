@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------------- #
 # Copyright (c) 2016 Varnerlab
-# School of Chemical Engineering Purdue University
-# W. Lafayette IN 46907 USA
+# Robert Frederick School of Chemical and Biomolecular Engineering
+# Cornell University, Ithaca NY 14850
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
