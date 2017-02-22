@@ -84,8 +84,13 @@ function main()
   path_to_output_file = parsed_args["o"]
   write_program_components_to_disk(path_to_output_file,component_set)
 
-  # Transfer distrubtion files to the output -
+  # Transfer distrubtion jl files to the output -
   transfer_distribution_files("./distribution",path_to_output_file,".jl")
+
+  # transfer the README files -
+  path_to_readme_file = splitdir(path_to_model_file)[1]
+  transfer_distribution_files("./distribution",path_to_readme_file,".md")
+
 end
 
 main()

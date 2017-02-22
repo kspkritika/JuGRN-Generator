@@ -1,3 +1,179 @@
+function calculate_fisher_information_matrix(scaled_sensitivity_array,measurement_weight_array,id_parameter_index_array)
+
+  # Get the size of the system -
+  (number_of_rows,number_of_cols) = size(scaled_sensitivity_array);
+
+  # grab the id cols -
+  id_sensitivity_array = scaled_sensitivity_array[:,id_parameter_index_array]
+  id_measurement_array = measurement_weight_array[:,id_parameter_index_array]
+
+  # Create the FIM (fisher_information_matrix) -
+  FIM = transpose(id_sensitivity_array)*id_measurement_array*id_sensitivity_array
+
+  # return the FIM to the caller -
+  return FIM
+end
+
+function estimate_identifiable_parameters(scaled_sensitivity_array,epsilon)
+
+  # Get the size of the system -
+  (number_of_rows,number_of_cols) = size(scaled_sensitivity_array);
+  X = zeros(number_of_rows,1)
+  pset = Int64[]
+
+  R = scaled_sensitivity_array
+
+  for col_index = 1:number_of_cols
+
+    # get mag of col -
+    local_m_array = zeros(number_of_cols)
+    for inner_col_index = 1:number_of_cols
+
+      value = R[:,inner_col_index]'*R[:,inner_col_index]
+      local_m_array[inner_col_index] = value[1]
+    end
+
+    # what is the maximum element?
+    max_value = maximum(local_m_array)
+    max_index = indmax(local_m_array)
+
+    # check tolerance -
+    if max_value>epsilon
+
+      # Grab this parameter -
+      push!(pset,max_index)
+
+      # Grab this col -
+      X = [X scaled_sensitivity_array[:,max_index]]
+
+      # remove leading col if first time through -
+      if (col_index == 1)
+        X = X[:,2:end]
+      end
+
+      # Create local array -
+      Shat=X*inv(X'*X)*X'*scaled_sensitivity_array
+
+      # Update R -
+      R = scaled_sensitivity_array - Shat
+    end
+  end
+
+  return sort!(pset)
+end
+
+function calculate_sensitivity_array(path_to_senstivity_files,file_pattern,time_skip,data_dictionary)
+
+  # what is my system dimension?
+  number_of_states = data_dictionary["number_of_states"]
+
+  # load the files -
+  searchdir(path,key) = filter(x->contains(x,key),readdir(path))
+
+  # block_dictionary -
+  block_dictionary = Dict()
+
+  # build file list -
+  list_of_files = searchdir(path_to_senstivity_files,file_pattern)
+  number_of_files = length(list_of_files)
+  time_array = []
+  for file_index = 1:number_of_files
+
+    # Build path -
+    path_to_data_file = path_to_senstivity_files*"/"*file_pattern*string(file_index)*".dat"
+
+    # Load file -
+    local_data_array = readdlm(path_to_data_file)
+
+    # split -
+    time_array = local_data_array[:,1]
+    X = local_data_array[:,2:end]
+    state_array = X[:,1:number_of_states]
+    sensitivity_array = X[:,(number_of_states+1):end]
+    scaled_sensitivity_block = scale_sensitivity_array(time_array,state_array,sensitivity_array,file_index,data_dictionary)
+
+    # store the transpose -
+    key_symbol = file_pattern*string(file_index)*".dat"
+    block_dictionary[key_symbol] = transpose(scaled_sensitivity_block)
+  end
+
+  # what is my system dimension?
+  number_of_timesteps = length(time_array)
+  number_of_parameters = number_of_files
+
+  # initialize -
+  sensitivity_array = zeros(number_of_states,number_of_parameters)
+  sample_time_array = Float64[]
+  for time_step_index = 1:time_skip:number_of_timesteps
+
+    time_value = time_array[time_step_index]
+    push!(sample_time_array,time_value)
+
+    local_sens_block = zeros(number_of_states,number_of_parameters)
+    for parameter_index = 1:number_of_parameters
+
+      # get the block from the dictionary -
+      key_symbol = file_pattern*string(parameter_index)*".dat"
+      block = block_dictionary[key_symbol]
+
+      # grab the col -
+      block_col = block[:,time_step_index]
+
+      for state_index = 1:number_of_states
+        local_sens_block[state_index,parameter_index] = block_col[state_index]
+      end
+    end
+
+    # add block to s array -
+    sensitivity_array = [sensitivity_array ; local_sens_block]
+  end
+
+  # cutoff leading block -
+  sensitivity_array = sensitivity_array[(number_of_states+1):end,:]
+  return (sample_time_array,sensitivity_array)
+end
+
+function calculate_average_scaled_sensitivity_array(path_to_senstivity_files,file_pattern,data_dictionary)
+
+  # what is my system dimension?
+  number_of_states = data_dictionary["number_of_states"]
+
+  # initialize -
+  average_scaled_sensitivity_array = zeros(number_of_states,1)
+
+  # load the files -
+  searchdir(path,key) = filter(x->contains(x,key),readdir(path))
+
+  # build file list -
+  list_of_files = searchdir(path_to_senstivity_files,file_pattern)
+  number_of_files = length(list_of_files)
+  for file_index = 1:number_of_files
+
+    # Build path -
+    path_to_data_file = path_to_senstivity_files*"/"*file_pattern*string(file_index)*".dat"
+
+    # Load file -
+    local_data_array = readdlm(path_to_data_file)
+
+    # split -
+    time_array = local_data_array[:,1]
+    X = local_data_array[:,2:end]
+    state_array = X[:,1:number_of_states]
+    sensitivity_array = X[:,(number_of_states+1):end]
+    scaled_sensitivity_array = scale_sensitivity_array(time_array,state_array,sensitivity_array,file_index,data_dictionary)
+
+    # time average -
+    average_sensitivity_col = time_average_array(time_array,scaled_sensitivity_array)
+
+    # grab -
+    average_scaled_sensitivity_array = [average_scaled_sensitivity_array average_sensitivity_col]
+  end
+
+  # trim leading col -
+  average_scaled_sensitivity_array = average_scaled_sensitivity_array[:,2:end]
+  return average_scaled_sensitivity_array
+end
+
 function time_average_array(time_array,data_array)
 
   # what is the delta T?
