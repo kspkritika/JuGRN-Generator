@@ -24,6 +24,11 @@ function parse_commandline()
         help = "Path to the grn file written in the vgrn format."
         arg_type = AbstractString
         required = true
+
+        "-s"
+        help = "Host type: bacteria or mammalian?"
+        arg_type = Symbol
+        default = :bacteria
     end
 
     # return a dictionary w/args -
@@ -51,7 +56,8 @@ function main()
   push!(component_set,program_component_inputs)
 
   # Write the data_dictionary -
-  program_component_data_dictionary = build_data_dictionary_buffer(problem_object)
+  host_type = parsed_args["s"]
+  program_component_data_dictionary = build_data_dictionary_buffer(problem_object,host_type)
   push!(component_set,program_component_data_dictionary)
 
   # Write the Kinetics -

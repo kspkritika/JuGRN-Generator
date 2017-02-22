@@ -19,6 +19,48 @@
     "default_zipcode":"14850"
   },
 
+  "list_of_induction_synonyms":[
+    {
+      "symbol":"activate"
+    },
+    {
+      "symbol":"activates"
+    },
+    {
+      "symbol":"activated"
+    },
+    {
+      "symbol":"induce"
+    },
+    {
+      "symbol":"induces"
+    },
+    {
+      "symbol":"induced"
+    }
+  ],
+
+  "list_of_repression_synonyms":[
+    {
+      "symbol":"inhibit"
+    },
+    {
+      "symbol":"inhibits"
+    },
+    {
+      "symbol":"inhibited"
+    },
+    {
+      "symbol":"represses"
+    },
+    {
+      "symbol":"repressed"
+    },
+    {
+      "symbol":"repress"
+    }
+  ],
+
   "function_comment_dictionary":{
 
     "calculate_transcription_rates":{

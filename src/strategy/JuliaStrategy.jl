@@ -294,7 +294,7 @@ function build_control_buffer(problem_object::ProblemObject)
   return (program_component)
 end
 
-function build_data_dictionary_buffer(problem_object::ProblemObject)
+function build_data_dictionary_buffer(problem_object::ProblemObject,host_flag::Symbol)
 
   filename = "DataDictionary.jl"
 
@@ -378,7 +378,12 @@ function build_data_dictionary_buffer(problem_object::ProblemObject)
 
   buffer *= "\t]\n"
   buffer *= "\n"
-  buffer *= @include_function("txtl_constants","\t")
+
+  if host_flag == :bacteria
+    buffer *= @include_function("txtl_constants_ecoli","\t")
+  else
+    buffer *= @include_function("txtl_constants_hl60","\t")
+  end
   buffer *= "\n"
 
   buffer *= "\t# initial condition array - \n"
@@ -839,6 +844,26 @@ function generate_parameter_name_mapping(list_of_genes::Array{SpeciesObject},lis
     end
   end
 
+  # push some "hard coded" constants onto the end -
+  # we should encode this list in a config file ...
+  # "rnapII_concentration"	; 				# 1
+  # "ribosome_concentration"	;				# 2
+  # "degradation_constant_mRNA"	;			# 3
+  # "degradation_constant_protein"	;	# 4
+  # "kcat_transcription"	;						# 5
+  # "kcat_translation"	;							# 6
+  # "maximum_specific_growth_rate"	;	# 7
+  # "saturation_constant_transcription"	;	# 8
+  # "saturation_constant_translation"	;	# 9
+  push!(list_of_names,"rnapII_concentration")
+  push!(list_of_names,"ribosome_concentration")
+  push!(list_of_names,"degradation_constant_mRNA")
+  push!(list_of_names,"degradation_constant_protein")
+  push!(list_of_names,"kcat_transcription")
+  push!(list_of_names,"kcat_translation")
+  push!(list_of_names,"maximum_specific_growth_rate")
+  push!(list_of_names,"saturation_constant_transcription")
+  push!(list_of_names,"saturation_constant_translation")
 
   buffer = ""
   buffer *= "\tparameter_name_mapping_array = [\n"

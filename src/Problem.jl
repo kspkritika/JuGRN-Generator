@@ -11,7 +11,7 @@ function generate_problem_object(statement_vector::Array{VGRNSentence})
   species_array::Array{SpeciesObject} = build_species_list(statement_vector)
 
   # construct the array of reactions -
-  connection_array::Array{ConnectionObject} = build_connection_list(statement_vector)
+  connection_array::Array{ConnectionObject} = build_connection_list(statement_vector,config_dict)
 
   # set data on problem_object -
   problem_object.list_of_species = species_array
@@ -21,7 +21,7 @@ function generate_problem_object(statement_vector::Array{VGRNSentence})
   return problem_object
 end
 
-function build_connection_list(statement_vector::Array{VGRNSentence})
+function build_connection_list(statement_vector::Array{VGRNSentence},configuration_dictionary::Dict{String,Any})
 
   # initialize -
   list_of_connections = ConnectionObject[]
@@ -70,11 +70,31 @@ function build_connection_list(statement_vector::Array{VGRNSentence})
     connection_object.connection_actor_set = actor_set
     connection_object.connection_target_set = target_set
 
+    # create a set for list_of_induction_synonyms -
+    induction_synonyms = Set{String}()
+    list_of_induction_synonyms = configuration_dictionary["list_of_induction_synonyms"]
+    for (index,local_dictionary) in enumerate(list_of_induction_synonyms)
+
+      # grab the symbol -
+      symbol = local_dictionary["symbol"]
+      push!(induction_synonyms,symbol)
+    end
+
+    # create a set of list_of_repression_synonyms -
+    repression_synonyms = Set{String}()
+    list_of_repression_synonyms = configuration_dictionary["list_of_repression_synonyms"]
+    for (index,local_dictionary) in enumerate(list_of_repression_synonyms)
+
+      # grab the symbol -
+      symbol = local_dictionary["symbol"]
+      push!(repression_synonyms,symbol)
+    end
+
     # What is my type?
     connection_action_string = vgrn_sentence.sentence_action_clause
-    if (connection_action_string == "activates")
+    if (in(connection_action_string,induction_synonyms))
       connection_object.connection_type = :activate
-    elseif (connection_action_string == "inhibits")
+    elseif (in(connection_action_string,repression_synonyms))
       connection_object.connection_type = :inhibit
     end
 
