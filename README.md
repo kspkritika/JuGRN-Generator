@@ -35,7 +35,7 @@ Argument | Required | Default | Description
 --- | --- | --- | ---
 -m | Yes	| none | Path to model input file (your \*.net file)
 -o | No	| current directory | Path where files are written
--s | No	| bacterial | Host type (bacterial | mammalian)
+-s | No	| bacterial | Host type (bacterial \| mammalian)
 
 ### Format for the GRN model input file ###
 JuGRN-Generator transforms structured flat files into GRN model code. JuGRN-Generator takes flat files of the form:
