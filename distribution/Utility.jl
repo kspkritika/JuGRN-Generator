@@ -314,6 +314,10 @@ function calculate_bmatrix_row(time,state_array,balance_index,data_dictionary)
   misc_parameter_dictionary = data_dictionary["misc_parameter_dictionary"]
   number_of_parameters = length(parameter_name_mapping_array)
 
+  # how many binding parameters do we have?
+  number_of_binding_parameters = length(binding_parameter_dictionary)
+  number_of_control_parameters = length(control_parameter_dictionary)
+
   # create a mega dictionary -
   total_parameter_dictionary = merge(binding_parameter_dictionary,control_parameter_dictionary,misc_parameter_dictionary)
 
@@ -365,12 +369,11 @@ function calculate_bmatrix_row(time,state_array,balance_index,data_dictionary)
       end
     end
 
-    if (parameter_index<=6)
+    if (parameter_index<=number_of_binding_parameters)
 
       # we are in the binding section -
       local_data_dictionary["binding_parameter_dictionary"][parameter_name] = perturbed_parameter_array[parameter_index]
-    elseif (parameter_index>7 && parameter_index<=12)
-
+    elseif (parameter_index>number_of_binding_parameters && parameter_index<=(number_of_binding_parameters+number_of_control_parameters))
       # we are in the control section -
       local_data_dictionary["control_parameter_dictionary"][parameter_name] = perturbed_parameter_array[parameter_index]
     else
