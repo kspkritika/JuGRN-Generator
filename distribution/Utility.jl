@@ -29,10 +29,9 @@ function calculate_fisher_information_matrix(scaled_sensitivity_array,measuremen
 
   # grab the id cols -
   id_sensitivity_array = scaled_sensitivity_array[:,id_parameter_index_array]
-  id_measurement_array = measurement_weight_array[:,id_parameter_index_array]
 
   # Create the FIM (fisher_information_matrix) -
-  FIM = transpose(id_sensitivity_array)*id_measurement_array*id_sensitivity_array
+  FIM = transpose(id_sensitivity_array)*measurement_weight_array*id_sensitivity_array
 
   # return the FIM to the caller -
   return FIM
