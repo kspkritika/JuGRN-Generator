@@ -16,15 +16,10 @@ or
 
 	$ git clone https://github.com/varnerlab/JuGRN-Generator.git
 
-To execute a code generation job, Julia must be installed on your machine along with the Julia packages ``ArgParse`` and ``JSON``.
-Julia can be downloaded/installed on any platform.
-The required [Julia](http://julialang.org) packages can be installed by executing the commands:
+To execute a code generation job, Julia must be installed on your machine along with the Julia packages [ArgParse](https://github.com/carlobaldassi/ArgParse.jl), [JSON](https://github.com/JuliaIO/JSON.jl) and [ODE](https://github.com/JuliaDiffEq/ODE.jl).
+Julia can be downloaded/installed on any platform. The required [Julia](http://julialang.org) packages can be installed by executing the commands:
 
-	julia> Pkg.add("ArgParse")
-
-and
-
-	julia> Pkg.add("JSON")
+	julia> Pkg.add("<package name goes here>")
 
 in the Julia REPL.  
 
