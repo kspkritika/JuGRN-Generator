@@ -47,7 +47,7 @@ kcat_translation_initiation = 10*kcat_transcription_initiation                  
 maximum_specific_growth_rate = (1/doubling_time_cell)*log(e,2)                          # hr^-1
 
 # What is the average gene concentration -
-avg_gene_concentration = avg_gene_number*(1/mass_of_single_cell)*(1/V)*1e9              # nmol/gdw
+avg_gene_concentration = avg_gene_number*(1/mass_of_single_cell)*(1/av_number)*1e9      # nmol/gdw
 
 # How fast do my cells die?
 death_rate_constant = 0.05*maximum_specific_growth_rate                                 # hr^-1

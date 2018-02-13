@@ -30,8 +30,16 @@ time_start = 0.0
 time_stop = 120.0
 time_step_size = 0.01
 
+# setup some constants -
+const epsilon = 1e-6
+
 # Load the data dictionary -
 data_dictionary = DataDictionary(time_start,time_stop,time_step_size)
+
+# Phase 1: estimate the steady-state -
+XSS = estimate_steady_state(epsilon,data_dictionary)
+
+
 
 # Solve the model equations -
 (T,X) = SolveBalances(time_start,time_stop,time_step_size,data_dictionary)

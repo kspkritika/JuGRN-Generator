@@ -83,6 +83,7 @@ function Balances(t,x,data_dictionary)
   idx_small = find(x.<0)
   x[idx_small] = 0.0
 
+ 
   # Get model matricies and other required data from the data_dictionary -
   stoichiometric_matrix = data_dictionary["stoichiometric_matrix"]
   dilution_matrix = data_dictionary["dilution_matrix"]
@@ -109,6 +110,11 @@ function Balances(t,x,data_dictionary)
 
   # Evaluate the balance equations -
   dxdt_array = stoichiometric_matrix*txtl_rate_array+degradation_matrix*degradation_rate_array+mugmax*dilution_matrix*x+background_transcription_rate_array+input_array
+
+  # Genes are at a steady-state -
+  dxdt_array[1] = 0 # gene_1
+  dxdt_array[2] = 0 # gene_2
+  dxdt_array[3] = 0 # gene_3
 
   # return -
   return dxdt_array

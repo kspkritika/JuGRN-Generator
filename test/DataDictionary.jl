@@ -47,9 +47,9 @@ function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::F
 
 	# array of gene lengths -
 	gene_coding_length_array = [
-		15000	;	# 1	gene_1
-		15000	;	# 2	gene_2
-		15000	;	# 3	gene_3
+		1000	;	# 1	gene_1
+		1200	;	# 2	gene_2
+		900		;	# 3	gene_3
 	]
 
 	# array of mRNA coding lengths -
@@ -84,8 +84,8 @@ function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::F
 	average_protein_length = 400       	            # aa
 	fraction_nucleus = 0.0             	            # dimensionless
 	av_number = 6.02e23                             # number/mol
-	avg_gene_number = 2                             # number of copies of a gene
-	polysome_number = 4					            # number of ribsomoses per transcript
+	avg_gene_number = 4                             # number of copies of a gene
+	polysome_number = 4					        # number of ribsomoses per transcript
 	# ------------------------------------------------------------------------------------------#
 	#
 	# ------------------------------------------------------------------------------------------#
@@ -115,18 +115,19 @@ function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::F
 	maximum_specific_growth_rate = (1/doubling_time_cell)*log(e,2)                          # hr^-1
 
 	# What is the average gene concentration -
-	avg_gene_concentration = avg_gene_number*(1/mass_of_single_cell)*(1/V)*1e9              # nmol/gdw
+	avg_gene_concentration = avg_gene_number*(1/av_number)*(1/mass_of_single_cell)*1e9      # nmol/gdw
 
 	# How fast do my cells die?
 	death_rate_constant = 0.05*maximum_specific_growth_rate                                 # hr^-1
 
 	# Saturation constants for translation and trascription -
-	saturation_transcription = 4600*(1/av_number)*(1/mass_of_single_cell)*1e9               # nmol/gdw
-	saturation_translation = 150000*(1/av_number)*(1/mass_of_single_cell)*1e6               # nmol/gdw
+	saturation_transcription = 10*(1/av_number)*(1/mass_of_single_cell)*1e9               	# nmol/gdw
+	saturation_translation = 750000*(1/av_number)*(1/mass_of_single_cell)*1e6               	# mumol/gdw
 	# -------------------------------------------------------------------------------------------#
 
 	# initial condition array -
 	initial_condition_array = [
+
 		avg_gene_concentration	;	# 1	gene_1
 		avg_gene_concentration	;	# 2	gene_2
 		avg_gene_concentration	;	# 3	gene_3
@@ -140,23 +141,23 @@ function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::F
 
 	binding_parameter_dictionary = Dict{AbstractString,Float64}()
 	binding_parameter_dictionary["n_gene_2_gene_1"] = 1.0
-	binding_parameter_dictionary["K_gene_2_gene_1"] = 120.0
+	binding_parameter_dictionary["K_gene_2_gene_1"] = 0.05
 	binding_parameter_dictionary["n_gene_2_gene_3"] = 1.0
-	binding_parameter_dictionary["K_gene_2_gene_3"] = 120.0
+	binding_parameter_dictionary["K_gene_2_gene_3"] = 0.05
 	binding_parameter_dictionary["n_gene_3_gene_1"] = 1.0
-	binding_parameter_dictionary["K_gene_3_gene_1"] = 120.0
+	binding_parameter_dictionary["K_gene_3_gene_1"] = 0.05
 	binding_parameter_dictionary["n_gene_3_gene_2"] = 1.0
-	binding_parameter_dictionary["K_gene_3_gene_2"] = 120.0
+	binding_parameter_dictionary["K_gene_3_gene_2"] = 0.05
 
 	# Alias the control function parameters -
 	control_parameter_dictionary = Dict{AbstractString,Float64}()
-	control_parameter_dictionary["W_gene_1_RNAP"] = 0.000001
-	control_parameter_dictionary["W_gene_2_RNAP"] = 0.000001
-	control_parameter_dictionary["W_gene_2_gene_1"] = 1.0
-	control_parameter_dictionary["W_gene_2_gene_3"] = 1.0
-	control_parameter_dictionary["W_gene_3_RNAP"] = 0.000001
-	control_parameter_dictionary["W_gene_3_gene_1"] = 1.0
-	control_parameter_dictionary["W_gene_3_gene_2"] = 1.0
+	control_parameter_dictionary["W_gene_1_RNAP"] = 0.0
+	control_parameter_dictionary["W_gene_2_RNAP"] = 0.0
+	control_parameter_dictionary["W_gene_2_gene_1"] = 10.0
+	control_parameter_dictionary["W_gene_2_gene_3"] = 10.0
+	control_parameter_dictionary["W_gene_3_RNAP"] = 0.0
+	control_parameter_dictionary["W_gene_3_gene_1"] = 10.0
+	control_parameter_dictionary["W_gene_3_gene_2"] = 10.0
 
 	# Alias the txtl parameters -
 	txtl_parameter_dictionary = Dict{AbstractString,Float64}()
@@ -203,6 +204,8 @@ function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::F
 	# =============================== DO NOT EDIT BELOW THIS LINE ============================== #
 	data_dictionary = Dict{AbstractString,Any}()
 	data_dictionary["number_of_states"] = number_of_states
+	data_dictionary["volume_of_single_cell"] = V
+	data_dictionary["mass_of_single_cell"] = mass_of_single_cell
 	data_dictionary["initial_condition_array"] = initial_condition_array
 	data_dictionary["average_transcript_length"] = average_transcript_length
 	data_dictionary["average_protein_length"] = average_protein_length
@@ -230,7 +233,7 @@ function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::F
 	data_dictionary["binding_parameter_dictionary"] = binding_parameter_dictionary
 	data_dictionary["control_parameter_dictionary"] = control_parameter_dictionary
 	data_dictionary["parameter_name_mapping_array"] = parameter_name_mapping_array
-	data_dictionary["misc_parameter_dictionary"] = misc_parameter_dictionary
+	data_dictionary["txtl_parameter_dictionary"] = txtl_parameter_dictionary
 	# =============================== DO NOT EDIT ABOVE THIS LINE ============================== #
 	return data_dictionary
 end

@@ -337,7 +337,7 @@ function build_data_dictionary_buffer(problem_object::ProblemObject,host_flag::S
     species_type = species_object.species_type
 
     if (species_type == :gene)
-      buffer *= "\t\t15000\t;\t# $(index)\t$(species_symbol)\n"
+      buffer *= "\t\t1000\t;\t# $(index)\t$(species_symbol)\n"
     end
   end
   buffer *= "\t]\n"
@@ -485,6 +485,8 @@ function build_data_dictionary_buffer(problem_object::ProblemObject,host_flag::S
   buffer *= "\t# =============================== DO NOT EDIT BELOW THIS LINE ============================== #\n"
   buffer *= "\tdata_dictionary = Dict{AbstractString,Any}()\n"
   buffer *= "\tdata_dictionary[\"number_of_states\"] = number_of_states\n"
+  buffer *= "\tdata_dictionary[\"volume_of_single_cell\"] = V\n"
+  buffer *= "\tdata_dictionary[\"mass_of_single_cell\"] = mass_of_single_cell\n"
   buffer *= "\tdata_dictionary[\"initial_condition_array\"] = initial_condition_array\n"
   buffer *= "\tdata_dictionary[\"average_transcript_length\"] = average_transcript_length\n"
   buffer *= "\tdata_dictionary[\"average_protein_length\"] = average_protein_length\n"
@@ -514,7 +516,7 @@ function build_data_dictionary_buffer(problem_object::ProblemObject,host_flag::S
   buffer *= "\tdata_dictionary[\"binding_parameter_dictionary\"] = binding_parameter_dictionary\n"
   buffer *= "\tdata_dictionary[\"control_parameter_dictionary\"] = control_parameter_dictionary\n"
   buffer *= "\tdata_dictionary[\"parameter_name_mapping_array\"] = parameter_name_mapping_array\n"
-  buffer *= "\tdata_dictionary[\"misc_parameter_dictionary\"] = misc_parameter_dictionary\n"
+  buffer *= "\tdata_dictionary[\"txtl_parameter_dictionary\"] = txtl_parameter_dictionary\n"
   buffer *= "\t# =============================== DO NOT EDIT ABOVE THIS LINE ============================== #\n"
   buffer *= "\treturn data_dictionary\n"
   buffer *= "end\n"
