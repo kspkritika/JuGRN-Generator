@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------------- #
-# Copyright (c) 2016 Varnerlab
+# Copyright (c) 2018 Varnerlab
 # Robert Frederick Smith School of Chemical and Biomolecular Engineering
 # Cornell University, Ithaca NY 14850
 #
@@ -25,7 +25,7 @@
 # ----------------------------------------------------------------------------------- #
 # Function: calculate_transcription_rates
 # Description: Calculate the transcriptional rate array at time t
-# Generated on: 2016-09-18T10:39:47
+# Generated on: 2018-02-13T05:26:59.531
 #
 # Input arguments:
 # t::Float64 => Current time value (scalar) 
@@ -46,6 +46,8 @@ function calculate_transcription_rates(t::Float64,x::Array{Float64,1},data_dicti
 	transcription_rate_array = zeros(3)
 	KSAT = data_dictionary["saturation_constant_transcription"]
 	kcat_transcription = data_dictionary["kcat_transcription"]
+	kcat_transcription_initiation = data_dictionary["kcat_transcription_initiation"]
+	mugmax = data_dictionary["maximum_specific_growth_rate"]
 	rnapII_concentration = data_dictionary["rnapII_concentration"]
 	average_transcript_length = data_dictionary["average_transcript_length"]
 	gene_coding_length_array = data_dictionary["gene_coding_length_array"]
@@ -53,18 +55,21 @@ function calculate_transcription_rates(t::Float64,x::Array{Float64,1},data_dicti
 	# Populate the transcription rate array - 
 	# Gene: gene_1
 	gene_length = gene_coding_length_array[1]
-	scale_factor = (average_transcript_length/gene_length)
-	transcription_rate_array[1] = scale_factor*kcat_transcription*(rnapII_concentration)*((gene_1)/(KSAT+gene_1))
+	length_factor = (average_transcript_length/gene_length)
+	kcat = (kcat_transcription*length_factor*kcat_transcription_initiation)/(kcat_transcription*length_factor+mugmax)
+	transcription_rate_array[1] = kcat*(rnapII_concentration)*((gene_1)/(KSAT+gene_1))
 
 	# Gene: gene_2
 	gene_length = gene_coding_length_array[2]
-	scale_factor = (average_transcript_length/gene_length)
-	transcription_rate_array[2] = scale_factor*kcat_transcription*(rnapII_concentration)*((gene_2)/(KSAT+gene_2))
+	length_factor = (average_transcript_length/gene_length)
+	kcat = (kcat_transcription*length_factor*kcat_transcription_initiation)/(kcat_transcription*length_factor+mugmax)
+	transcription_rate_array[2] = kcat*(rnapII_concentration)*((gene_2)/(KSAT+gene_2))
 
 	# Gene: gene_3
 	gene_length = gene_coding_length_array[3]
-	scale_factor = (average_transcript_length/gene_length)
-	transcription_rate_array[3] = scale_factor*kcat_transcription*(rnapII_concentration)*((gene_3)/(KSAT+gene_3))
+	length_factor = (average_transcript_length/gene_length)
+	kcat = (kcat_transcription*length_factor*kcat_transcription_initiation)/(kcat_transcription*length_factor+mugmax)
+	transcription_rate_array[3] = kcat*(rnapII_concentration)*((gene_3)/(KSAT+gene_3))
 
 
 	# return transcription_rate_array - 
@@ -74,7 +79,7 @@ end
 # ----------------------------------------------------------------------------------- #
 # Function: calculate_background_transcription_rates
 # Description: Calculate the leak transcriptional rate array at time t
-# Generated on: 2016-09-18T10:39:47
+# Generated on: 2018-02-13T05:26:59.531
 #
 # Input arguments:
 # t::Float64 => Current time value (scalar) 
@@ -92,7 +97,7 @@ end
 # ----------------------------------------------------------------------------------- #
 # Function: calculate_translation_rates
 # Description: Calculate the translation rate array at time t
-# Generated on: 2016-09-18T10:39:47
+# Generated on: 2018-02-13T05:26:59.531
 #
 # Input arguments:
 # t::Float64 => Current time value (scalar) 
@@ -119,17 +124,17 @@ function calculate_translation_rates(t::Float64,x::Array{Float64,1},data_diction
 
 	# Populate the translation rate array - 
 	# Transcript: mRNA_gene_1
-	protein_length = protein_coding_length_array[4]
+	protein_length = protein_coding_length_array[1]
 	scale_factor = (average_protein_length/protein_length)
 	translation_rate_array[1] = scale_factor*kcat_translation*(ribosome_concentration)*((mRNA_gene_1)/(KSAT+mRNA_gene_1))
 
 	# Transcript: mRNA_gene_2
-	protein_length = protein_coding_length_array[5]
+	protein_length = protein_coding_length_array[2]
 	scale_factor = (average_protein_length/protein_length)
 	translation_rate_array[2] = scale_factor*kcat_translation*(ribosome_concentration)*((mRNA_gene_2)/(KSAT+mRNA_gene_2))
 
 	# Transcript: mRNA_gene_3
-	protein_length = protein_coding_length_array[6]
+	protein_length = protein_coding_length_array[3]
 	scale_factor = (average_protein_length/protein_length)
 	translation_rate_array[3] = scale_factor*kcat_translation*(ribosome_concentration)*((mRNA_gene_3)/(KSAT+mRNA_gene_3))
 
@@ -141,7 +146,7 @@ end
 # ----------------------------------------------------------------------------------- #
 # Function: calculate_mRNA_degradation_rates
 # Description: Calculate the mRNA degradation rate array at time t
-# Generated on: 2016-09-18T10:39:47
+# Generated on: 2018-02-13T05:26:59.531
 #
 # Input arguments:
 # t::Float64 => Current time value (scalar) 
@@ -174,7 +179,7 @@ end
 # ----------------------------------------------------------------------------------- #
 # Function: calculate_protein_degradation_rates
 # Description: Calculate the protein degradation rate array at time t
-# Generated on: 2016-09-18T10:39:47
+# Generated on: 2018-02-13T05:26:59.531
 #
 # Input arguments:
 # t::Float64 => Current time value (scalar) 

@@ -1,9 +1,3 @@
-# includes -
-include("Kinetics.jl")
-include("Control.jl")
-include("Inputs.jl")
-using Debug
-
 # ----------------------------------------------------------------------------------- #
 # Copyright (c) 2016 Varnerlab
 # Robert Frederick School of Chemical and Biomolecular Engineering
@@ -27,7 +21,49 @@ using Debug
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 # ----------------------------------------------------------------------------------- #
+
+# ----------------------------------------------------------------------------------- #
+# AdjBalances: Evaluates adjoint model equations given time, state, parameter_index,
+# and the data_dictionary.
 #
+# Type: GRN-JULIA
+# Version: 1.0
+#
+# Input arguments:
+# t  - current time
+# x  - state array
+# parameter_index - index of the parameter that we are calculating sc's
+# data_dictionary  - Data dictionary instance (holds model parameters)
+#
+# Return arguments:
+# dxdt - derivative array at current time step
+# ----------------------------------------------------------------------------------- #
+function AdjBalances(t,x,parameter_index,data_dictionary)
+
+  # look up the number of states -
+  number_of_states = data_dictionary["number_of_states"]
+
+  # partition that state -
+  state_array = x[1:number_of_states]
+  sensitivity_array = x[(number_of_states+1):end]
+
+  # call -
+  dxdt_array = Balances(t,state_array,data_dictionary)
+
+  # Calculate the sensitivity states -
+  local_data_dictionary = deepcopy(data_dictionary)
+  JM = calculate_jacobian(t,state_array,local_data_dictionary)
+  BM = calculate_bmatrix(t,state_array,local_data_dictionary)
+
+  # calulate the sensitivity state -
+  dsdt_array = JM*sensitivity_array+BM[:,parameter_index]
+  r_array = [dxdt_array ; dsdt_array]
+
+  # return -
+  return r_array
+end
+
+
 # ----------------------------------------------------------------------------------- #
 # Balances: Evaluates model equations given time, state and the data_dictionary.
 # Type: GRN-JULIA
@@ -49,8 +85,8 @@ function Balances(t,x,data_dictionary)
 
   # Get model matricies and other required data from the data_dictionary -
   stoichiometric_matrix = data_dictionary["stoichiometric_matrix"]
-	dilution_matrix = data_dictionary["dilution_matrix"]
-	degradation_matrix = data_dictionary["degradation_matrix"]
+  dilution_matrix = data_dictionary["dilution_matrix"]
+  degradation_matrix = data_dictionary["degradation_matrix"]
   mugmax = data_dictionary["maximum_specific_growth_rate"]
 
   # Calculate the kinetics -

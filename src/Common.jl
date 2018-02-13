@@ -17,38 +17,69 @@ function write_program_components_to_disk(file_path::AbstractString,set_of_progr
   end
 end
 
+function transfer_distribution_file(path_to_distribution_files::AbstractString,
+                                      input_file_name_with_extension::AbstractString,
+                                      path_to_output_files::AbstractString,
+                                      output_file_name_with_extension::AbstractString)
+
+  # Load the specific file -
+  # create src_buffer -
+  src_buffer::Array{AbstractString} = AbstractString[]
+
+  # path to distrubtion -
+  path_to_src_file = path_to_distribution_files*"/"*input_file_name_with_extension
+  open(path_to_src_file,"r") do src_file
+    for line in eachline(src_file)
+
+        # need to add a new line for some reason in Julia 0.6
+        new_line_with_line_ending = line*"\n"
+        push!(src_buffer,new_line_with_line_ending)
+    end
+  end
+
+  # Write the file to the output -
+  path_to_program_file = path_to_output_files*"/"*output_file_name_with_extension
+  outfile = open(path_to_program_file, "w")
+  write(outfile,src_buffer);
+  close(outfile);
+
+end
+
 function transfer_distribution_files(path_to_distribution_files::AbstractString,
                                       path_to_output_files::AbstractString,
                                       file_extension::AbstractString)
 
 
-  # Search the directory for src files -
-  # load the files -
-  searchdir(path,key) = filter(x->contains(x,key),readdir(path))
+    # Search the directory for src files -
+    # load the files -
+    searchdir(path,key) = filter(x->contains(x,key),readdir(path))
 
-  # build src file list -
-  list_of_src_files = searchdir(path_to_distribution_files,file_extension)
+    # build src file list -
+    list_of_src_files = searchdir(path_to_distribution_files,file_extension)
 
-  # go thru the src file list, and copy the files to the output path -
-  for src_file in list_of_src_files
+    # go thru the src file list, and copy the files to the output path -
+    for src_file in list_of_src_files
 
-    # create src_buffer -
-    src_buffer::Array{AbstractString} = AbstractString[]
+        # create src_buffer -
+        src_buffer::Array{AbstractString} = AbstractString[]
 
-    # path to distrubtion -
-    path_to_src_file = path_to_distribution_files*"/"*src_file
-    open(path_to_src_file,"r") do src_file
-      for line in eachline(src_file)
-        push!(src_buffer,line)
-      end
+        # path to distrubtion -
+        path_to_src_file = path_to_distribution_files*"/"*src_file
+        open(path_to_src_file,"r") do src_file
+            for line in eachline(src_file)
+
+                # need to add a new line for some reason in Julia 0.6
+                new_line_with_line_ending = line*"\n"
+                push!(src_buffer,new_line_with_line_ending)
+            end
+        end
+
+        # Write the file to the output -
+        path_to_program_file = path_to_output_files*"/"*src_file
+        outfile = open(path_to_program_file, "w")
+        write(outfile,src_buffer);
+        close(outfile);
     end
-
-    # Write the file to the output -
-    path_to_program_file = path_to_output_files*"/"*src_file
-    outfile = open(path_to_program_file, "w")
-    write(outfile,src_buffer);
-    close(outfile);
-  end
 end
 
 function number_of_species_of_type(list_of_species::Array{SpeciesObject},species_type::Symbol)

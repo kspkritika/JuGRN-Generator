@@ -85,8 +85,8 @@ function Balances(t,x,data_dictionary)
 
   # Get model matricies and other required data from the data_dictionary -
   stoichiometric_matrix = data_dictionary["stoichiometric_matrix"]
-	dilution_matrix = data_dictionary["dilution_matrix"]
-	degradation_matrix = data_dictionary["degradation_matrix"]
+  dilution_matrix = data_dictionary["dilution_matrix"]
+  degradation_matrix = data_dictionary["degradation_matrix"]
   mugmax = data_dictionary["maximum_specific_growth_rate"]
 
   # Calculate the kinetics -

@@ -1,4 +1,6 @@
+// activation of P2 and P3 -
+gene_1 activates (gene_2,gene_3)
 
-// list of motif connections -
-(gene_3,gene_2) activates gene_1
-gene_2 inhibits gene_1
+// memory -
+gene_2 activates gene_3
+gene_3 activates gene_2

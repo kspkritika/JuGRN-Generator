@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------------------- #
-# Copyright (c) 2016 Varnerlab
+# Copyright (c) 2018 Varnerlab
 # Robert Frederick Smith School of Chemical and Biomolecular Engineering
 # Cornell University, Ithaca NY 14850
 #
@@ -25,7 +25,7 @@
 # ----------------------------------------------------------------------------------- #
 # Function: calculate_input_array
 # Description: Calculate the simulation inputs at time t
-# Generated on: 2016-09-18T10:39:47
+# Generated on: 2018-02-13T05:26:58.946
 #
 # Input arguments:
 # t::Float64 => Current time value (scalar) 
@@ -37,6 +37,9 @@
 # ----------------------------------------------------------------------------------- #
 function calculate_input_array(t::Float64,x::Array{Float64,1},data_dictionary::Dict{AbstractString,Any})
 
+	# Initialize default - 
+	u_array = zeros(length(x))
+
 	# return - 
-	return zeros(length(x))
+	return u_array
 end

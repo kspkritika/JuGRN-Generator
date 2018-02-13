@@ -497,6 +497,10 @@ function build_data_dictionary_buffer(problem_object::ProblemObject,host_flag::S
   buffer *= "\tdata_dictionary[\"degradation_constant_protein\"] = degradation_constant_protein  # hr^-1 \n"
   buffer *= "\tdata_dictionary[\"kcat_transcription\"] = kcat_transcription  # hr^-1 \n"
   buffer *= "\tdata_dictionary[\"kcat_translation\"] = kcat_translation  # hr^-1 \n"
+
+  buffer *= "\tdata_dictionary[\"kcat_transcription_initiation\"] = kcat_transcription_initiation  # hr^-1 \n"
+  buffer *= "\tdata_dictionary[\"kcat_translation_initiation\"] = kcat_translation_initiation  # hr^-1 \n"
+
   buffer *= "\tdata_dictionary[\"maximum_specific_growth_rate\"] = maximum_specific_growth_rate  # hr^-1 \n"
   buffer *= "\tdata_dictionary[\"death_rate_constant\"] = death_rate_constant \n"
   buffer *= "\tdata_dictionary[\"avg_gene_concentration\"] = avg_gene_concentration \n"
@@ -564,6 +568,8 @@ function build_kinetics_buffer(problem_object::ProblemObject)
   buffer *="\ttranscription_rate_array = zeros($(number_of_genes))\n"
   buffer *="\tKSAT = data_dictionary[\"saturation_constant_transcription\"]\n"
   buffer *="\tkcat_transcription = data_dictionary[\"kcat_transcription\"]\n"
+  buffer *="\tkcat_transcription_initiation = data_dictionary[\"kcat_transcription_initiation\"]\n"
+  buffer *="\tmugmax = data_dictionary[\"maximum_specific_growth_rate\"]\n"
   buffer *="\trnapII_concentration = data_dictionary[\"rnapII_concentration\"]\n"
   buffer *="\taverage_transcript_length = data_dictionary[\"average_transcript_length\"]\n"
   buffer *="\tgene_coding_length_array = data_dictionary[\"gene_coding_length_array\"]\n"
@@ -581,8 +587,9 @@ function build_kinetics_buffer(problem_object::ProblemObject)
     if (species_type == :gene)
       buffer *= "\t# Gene: $(species_symbol)\n"
       buffer *= "\tgene_length = gene_coding_length_array[$(index)]\n"
-      buffer *= "\tscale_factor = (average_transcript_length/gene_length)\n"
-      buffer *= "\ttranscription_rate_array[$(counter)] = scale_factor*kcat_transcription*(rnapII_concentration)*(($(species_symbol))/(KSAT+$(species_symbol)))\n"
+      buffer *= "\tlength_factor = (average_transcript_length/gene_length)\n"
+      buffer *= "\tkcat = (kcat_transcription*length_factor*kcat_transcription_initiation)/(kcat_transcription*length_factor+mugmax)\n"
+      buffer *= "\ttranscription_rate_array[$(counter)] = kcat*(rnapII_concentration)*(($(species_symbol))/(KSAT+$(species_symbol)))\n"
       buffer *= "\n"
       counter = counter + 1
     end
