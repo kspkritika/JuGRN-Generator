@@ -3,7 +3,7 @@ using PyPlot
 include("DataDictionary.jl")
 
 # load the data -
-data_archive = readdlm("./tmp/simulation_nominal.dat")
+data_archive = readdlm("./tmp/simulation_broken.dat")
 
 # grab the time and data archive -
 time_archive = data_archive[:,1]
@@ -51,5 +51,5 @@ xlabel("Time (min)",fontsize=18)
 ylabel(L"Concentration ($\mu$M)",fontsize=18)
 
 # save to disk -
-savefig("./figs/Memory-Nominal.pdf")
-run(`pdfcrop ./figs/Memory-Nominal.pdf ./figs/Memory-Nominal.pdf`)
+savefig("./figs/Memory-Broken.pdf")
+run(`pdfcrop ./figs/Memory-Broken.pdf ./figs/Memory-Broken.pdf`)

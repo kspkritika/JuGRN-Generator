@@ -74,7 +74,7 @@ function DataDictionary(time_start::Float64,time_stop::Float64,time_step_size::F
 	number_of_rnapII = 4600            	            # copies/cells
 	number_of_ribosome = 50000         	            # copies/cells
 	mRNA_half_life_TF = 0.083                       # hrs
-	protein_half_life = 70                          # hrs
+	protein_half_life = 20                          # hrs
 	infrastructure_half_life = 300					# hrs
 	doubling_time_cell = 0.33                       # hrs
 	max_translation_rate = 16.5                     # aa/sec
