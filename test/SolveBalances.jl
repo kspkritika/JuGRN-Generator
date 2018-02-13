@@ -65,7 +65,7 @@ function SolveAdjBalances(TSTART,TSTOP,Ts,parameter_index,data_dictionary)
   end
 
   # # Check for smalls -
-  idx_n = find(abs(X).<epsilon)
+  idx_n = find(abs.(X).<epsilon)
   X[idx_n] = 0.0
 
   # return time and state -

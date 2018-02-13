@@ -239,8 +239,8 @@ function scale_sensitivity_array(time_array,state_array,sensitivity_array,parame
   # build the total parameter dictionary -
   binding_parameter_dictionary = data_dictionary["binding_parameter_dictionary"]
 	control_parameter_dictionary = data_dictionary["control_parameter_dictionary"]
-  misc_parameter_dictionary = data_dictionary["misc_parameter_dictionary"]
-  total_parameter_dictionary = merge(binding_parameter_dictionary,control_parameter_dictionary,misc_parameter_dictionary)
+  txtl_parameter_dictionary = data_dictionary["txtl_parameter_dictionary"]
+  total_parameter_dictionary = merge(binding_parameter_dictionary,control_parameter_dictionary,txtl_parameter_dictionary)
 
   # Grab the default value -
   default_parameter_value = total_parameter_dictionary[parameter_name]
@@ -309,8 +309,8 @@ function calculate_bmatrix_row(time,state_array,balance_index,data_dictionary)
   # parameter name dictionary -
   parameter_name_mapping_array = data_dictionary["parameter_name_mapping_array"]
   binding_parameter_dictionary = data_dictionary["binding_parameter_dictionary"]
-	control_parameter_dictionary = data_dictionary["control_parameter_dictionary"]
-  misc_parameter_dictionary = data_dictionary["misc_parameter_dictionary"]
+  control_parameter_dictionary = data_dictionary["control_parameter_dictionary"]
+  txtl_parameter_dictionary = data_dictionary["txtl_parameter_dictionary"]
   number_of_parameters = length(parameter_name_mapping_array)
 
   # how many binding parameters do we have?
@@ -318,7 +318,7 @@ function calculate_bmatrix_row(time,state_array,balance_index,data_dictionary)
   number_of_control_parameters = length(control_parameter_dictionary)
 
   # create a mega dictionary -
-  total_parameter_dictionary = merge(binding_parameter_dictionary,control_parameter_dictionary,misc_parameter_dictionary)
+  total_parameter_dictionary = merge(binding_parameter_dictionary,control_parameter_dictionary,txtl_parameter_dictionary)
 
   # create delta parameter array -
   parameter_delta_array = Float64[]

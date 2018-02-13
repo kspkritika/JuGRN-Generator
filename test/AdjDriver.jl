@@ -27,8 +27,8 @@ include("Include.jl")
 
 # Setup the timescale of the simulation -
 time_start = 0.0
-time_stop = 24.0
-time_step_size = 0.1
+time_stop = 1.0
+time_step_size = 0.01
 number_of_timesteps = length(time_start:time_step_size:time_stop)
 
 # Load the data dictionary (default parameter values) -
@@ -46,14 +46,15 @@ for (parameter_index,parameter_value) in enumerate(parameter_name_mapping_array)
   local_data_dictionary = deepcopy(data_dictionary)
 
   # Solve the adj simulation -
-  # You need to point this to your specific adj simulation code -
-  #
-  # e.g.,
-  # (T,X) = adj_washout_inducer(time_start,time_stop,time_step_size,parameter_index,local_data_dictionary)
+  (T,X) = adj_induction_simulation(time_start,time_stop,time_step_size,parameter_index,local_data_dictionary)
 
   # dump the raw sensitivity arrays to disk -
   # you can modify this to point to some place on disk ...
   data_array = [T X]
   file_path = "./sensitivity/AdjSimulation-P"*string(parameter_index)*".dat"
   writedlm(file_path,data_array)
+
+  # let the user know what is going on?
+  msg = "Completed parameter $(parameter_value) ..."
+  println(msg)
 end
