@@ -6,6 +6,7 @@ JuGRN is a code generation system that transforms simple descriptions of the con
 1. [Tasseff R, Jensen H, Congleton J, Dai W, Rogers K, Sagar A, Yen A and J. Varner (2017) An Effective Model of the Retinoic Acid Induced Differentiation Program, Sci Reports, 7:14327 doi:10.1038/s41598-017-14523-5](https://www.nature.com/articles/s41598-017-14523-5)
 2. [Gould R, Bassen DM, Chakrabarti A, Varner JD and Butcher J (2016) Population Heterogeneity in the Epithelial to Mesenchymal Transition Is Controlled by NFAT and Phosphorylated Sp1. PLoS Comput Biol 12(12): e1005251. doi:10.1371/journal.pcbi.1005251](http://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1005251)
 
+to generate gene regulatory network code.
 
 ### Installation and Requirements
 You can download this repository as a zip file, or clone or pull it by using the command (from the command-line):
